@@ -1,0 +1,9 @@
+__pycache__/
+.mypy_cache/
+*.egg-info/
+build/
+test.*.log
+input.*.log
+cuts.py
+venv/
+venv-pypy/
