@@ -1,0 +1,12 @@
+--- Tests day 05 ---
+T.0.p1: True 35 35
+..min loc 46 from 82
+T.0.p2: True 46 46
+--- Day 05 p.1 ---
+True 227653707 227653707
+--- Day 05 p.2 ---
+..min loc 78775051 from 1799904698
+True 78775051 78775051
+real 267,68
+user 267,38
+sys 0,16

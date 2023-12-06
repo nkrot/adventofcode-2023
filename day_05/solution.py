@@ -80,6 +80,22 @@ class Map:
 #        for dest in sorted(self._destinations, key=lambda r: r.start):
 #            yield from dest
 
+    def destmin(self):
+        first = sorted(self._destinations, key=lambda r: r.start)[0]
+        return first.start
+
+    def destmax(self):
+        last = sorted(self._destinations, key=lambda r: -r.start)[0]
+        return last.stop
+
+    def srcmin(self):
+        first = sorted(self._sources, key=lambda r: r.start)[0]
+        return first.start
+
+    def srcmax(self):
+        last = sorted(self._sources, key=lambda r: -r.start)[0]
+        return last.stop
+
     def __repr__(self):
         return "<{}: name='{}' sources={} destinations={}>".format(
             self.__class__.__name__, self.name, self._sources,
@@ -165,18 +181,25 @@ def solve_p2(items: List[Tuple]) -> int:
     """Solution to the 2nd part of the challenge"""
     name, seeds = items.pop(0)
 
+
     seeds_mapping = Map(name)
     for i in range(0, len(seeds), 2):
         start, length = seeds[i], seeds[1+i]
         seeds_mapping.add((start, length))
+
     if DEBUG:
-        print(seeds_mapping)
+        # print(seeds_mapping)
+        print(seeds_mapping.name, seeds_mapping.srcmin(), seeds_mapping.srcmax())
+        for _, mapping in items:
+            print(mapping.name, mapping.destmin(), mapping.destmax())
 
     # Q: What is the lowest location number that corresponds to any of
     #    the initial seed numbers?
 
-    # TODO: how to reduce search space?
-    for loc in range(4210792153+84175143):
+    max_loc = items[-1][-1].destmax()
+
+    # for 5.2 it runs 40min on my computer and around 4 minutes with pypy
+    for loc in range(max_loc):
         seed = get_seed(loc, items)
         if DEBUG:
             print(loc, seed, seed in seeds_mapping)
@@ -185,35 +208,13 @@ def solve_p2(items: List[Tuple]) -> int:
             return loc
 
 
-def solve_p2_SUPERSLOW(items: List[Tuple]) -> int:
-    """Solution to the 2nd part of the challenge"""
-    seeds = items.pop(0)[-1]
-
-    intervals = []
-    for i in range(0, len(seeds), 2):
-        start, length = seeds[i], seeds[1+i]
-        intervals.append((start, start+length))
-    intervals.sort()
-
-    min_location = -1
-    for start, end in intervals:
-        print("Range", (start, end))
-        for seed in range(start, end):
-            location = get_location(seed, items)
-            if location < min_location or min_location == -1:
-                min_location = location
-                print("..min", min_location)
-
-    return min_location
-
-
 tests = [
     (load_input('test.1.txt', parser=parse), 35, 46),
 ]
 
 
 reals = [
-    (load_input(parser=parse), 227653707, 78775051)
+    (load_input(parser=parse), 227_653_707, 78_775_051)
 ]
 
 
