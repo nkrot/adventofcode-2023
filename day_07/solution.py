@@ -232,6 +232,7 @@ def solve_p1(hands: List[Hand]) -> int:
 def solve_p2(*args) -> int:
     return solve_p2_v2(*args)
 
+
 def solve_p2_v2(hands: List[Hand]) -> int:
 
     for hand in hands:
