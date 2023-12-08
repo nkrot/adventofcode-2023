@@ -11,6 +11,7 @@ from typing import List, Dict, Tuple, Callable
 from collections import defaultdict
 from pprint import pprint
 import math
+from functools import reduce
 
 
 from aoc.utils import load_input, run_tests, run_real, dprint, flatten
@@ -38,9 +39,8 @@ class LRI:
         return val
 
 
-def parse(lines: List[str]) -> Tuple[LRI, Dict]:
-    """Parse a line of input into suitable data structure:
-    """
+def parse(lines: List[str]) -> Tuple[LRI, Dict[str, Tuple[str, str]]]:
+    """Parse a line of input into suitable data structure"""
     lri = LRI(lines.pop(0))
     steps = {}
     while lines:
@@ -99,11 +99,21 @@ def solve_p2(args) -> int:
     # looking at paths as periodic functions with frequencies equal to
     # corresponding value from distances, how long does it take before
     # all functions converge at a single point? (Least common multiple)
-    return math.lcm(*distances)
-    # return lcm_my(distances)
+    return lcm(distances)
 
 
-def lcm_my(numbers) -> int:
+def lcm(numbers: List[int]):
+    """Find least common multiple for a list of integers"""
+    # works for python 3.9+
+    # return math.lcm(*distances)
+
+    # my own super slow implementation
+    #return lcm_stupid_way(distances)
+
+    return reduce(lambda x, y: (x*y) // math.gcd(x, y), numbers)
+
+
+def lcm_stupid_way(numbers) -> int:
     """Find the least common multiple"""
     largest = max(numbers)
 
