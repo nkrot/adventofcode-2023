@@ -36,7 +36,6 @@ def solve_p2(lines: List[str]) -> int:
     return solve(lines, unspell_and_select_digits)
 
 
-
 numbers = {
     'one': 1,
     'two': 2,
@@ -48,6 +47,7 @@ numbers = {
     'eight': 8,
     'nine': 9,
 }
+
 
 def unspell_and_select_digits(line: str) -> List[int]:
     """
@@ -80,3 +80,4 @@ reals = [
 if __name__ == '__main__':
     utils.run_tests(DAY, tests, solve_p1, solve_p2)
     utils.run_real(DAY, reals, solve_p1, solve_p2)
+
