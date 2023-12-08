@@ -80,7 +80,6 @@ def solve_p2(games: list) -> int:
     return res
 
 
-
 tests = [
     (utils.load_input('test.1.txt', line_parser=parse),
      8, sum([48, 12, 1560, 630, 36])),
