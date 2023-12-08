@@ -7,10 +7,10 @@
 import re
 import os
 import sys
-from typing import List
+from typing import List, Dict, Tuple
 from dataclasses import dataclass
 
-from aoc.utils import load_input, run_tests, run_real, to_numbers
+from aoc.utils import load_input, run_tests, run_real, dprint, to_numbers
 
 DAY = 'DD'  # TODO
 DEBUG = int(os.environ.get('DEBUG', 0))
