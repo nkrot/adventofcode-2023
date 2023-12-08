@@ -2,26 +2,44 @@
 import os
 import itertools
 import functools
+import inspect
+from pprint import pprint
 from copy import deepcopy
 from typing import List, Union, Tuple, Optional, Callable, Iterable, Any
 
 DEBUG = int(os.environ.get('DEBUG', 0))
 
 
-def load_input(fname: Optional[str] = None, **kwargs) -> List[str]:
-    """Load file, either given or default 'input.txt' and return its content
-    as a list of lines. All lines are returned, including empty ones."""
+def load_input(fname: Optional[str] = None, **kwargs) -> List[Any]:
+    """
+    Load file, either given or default 'input.txt' and return its content
+    as a list of lines. All lines are returned, including empty ones.
+
+    If `fname` is not provided by a full (absolute) path, it assumed to
+    be in the same directory as the script that envoked load_input().
+    In this very projects, this means in the same directory where the file
+    `solution.py` is located.
+    """
+
     fname = fname or 'input.txt'
+    if not os.path.isabs(fname):
+        srcdir = os.path.dirname(inspect.stack()[1][1])
+        fname = os.path.join(srcdir, fname)
+        dprint(f"Data file: {fname}")
+
     lines = []
     with open(fname) as fd:
         for line in fd:
             lines.append(line.rstrip('\r\n'))
+
     parse_line = kwargs.get("line_parser")
     if parse_line:
         lines = list(map(parse_line, lines))
+
     parse = kwargs.get("parser")
     if parse:
         lines = parse(lines)
+
     return lines
 
 
@@ -180,13 +198,15 @@ def run_real(
     solve_p2: Callable = None
 ):
     for tid, (inp, exp1, exp2) in enumerate(tests):
-        print(f"--- Day {day} p.1 ---")
-        res1 = solve_p1(deepcopy(inp))
-        print(test2str(exp1 == res1, exp1, res1))
+        if solve_p1:
+            print(f"--- Day {day} p.1 ---")
+            res1 = solve_p1(deepcopy(inp))
+            print(test2str(exp1 == res1, exp1, res1))
 
-        print(f"--- Day {day} p.2 ---")
-        res2 = solve_p2(inp)
-        print(test2str(exp2 == res2, exp2, res2))
+        if solve_p2:
+            print(f"--- Day {day} p.2 ---")
+            res2 = solve_p2(inp)
+            print(test2str(exp2 == res2, exp2, res2))
 
 
 class Vector(object):
