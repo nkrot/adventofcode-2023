@@ -13,8 +13,8 @@ from pprint import pprint
 import math
 from functools import reduce
 
-
 from aoc.utils import load_input, run_tests, run_real, dprint, flatten
+
 
 DAY = '08'
 DEBUG = int(os.environ.get('DEBUG', 0))
@@ -40,7 +40,7 @@ class LRI:
 
 
 def parse(lines: List[str]) -> Tuple[LRI, Dict[str, Tuple[str, str]]]:
-    """Parse a line of input into suitable data structure"""
+    """Parse all lines of input into suitable data structure"""
     lri = LRI(lines.pop(0))
     steps = {}
     while lines:
