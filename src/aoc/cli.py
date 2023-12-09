@@ -95,7 +95,8 @@ def load_solution_for_day(day: Union[str, int]) -> Optional[ModuleType]:
         mdl = import_module(f".{path}.solution", package=__package__)
     except ModuleNotFoundError:
         #raise RuntimeError(f"Solution for day {day} not found: {path}")
-        print(f"ERROR: Solution for day {day} not found: {path}", file=sys.stderr)
+        print(f"ERROR: Solution for day {day} not found ('{path}').",
+              file=sys.stderr)
 
     return mdl
 
