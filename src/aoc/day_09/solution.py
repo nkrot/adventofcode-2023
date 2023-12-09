@@ -10,10 +10,23 @@ import sys
 from typing import List, Dict, Tuple
 from dataclasses import dataclass
 
-from aoc.utils import load_input, run_tests, run_real, dprint, to_numbers
+from aoc import utils
+from aoc.utils import dprint, to_numbers
 
 DAY = '09'
 DEBUG = int(os.environ.get('DEBUG', 0))
+
+
+def solve_part_1(fname: str):
+    #print(f"Part 1 for file {fname}")
+    res = solve_p1(load_input(fname))
+    print(res)
+
+
+def solve_part_2(fname: str):
+    #print(f"Part 2 for file {fname}")
+    res = solve_p2(load_input(fname))
+    print(res)
 
 
 def parse(line: str) -> List[int]:
@@ -35,7 +48,7 @@ def extrapolate(numbers: List[int], level=0) -> Tuple[int]:
         return (0, 0)
 
     reduced = [numbers[i] - numbers[i-1] for i in range(1, len(numbers))]
-    dprint(f"{indent}Reduced: {numbers}")
+    dprint(f"{indent}Reduced: {reduced}")
 
     # alternative way of generating pairs of (previous, next) numbers
     # for p, n in zip(numbers[0:-1], numbers[1:])
@@ -56,16 +69,24 @@ def solve_p2(reports: List[int]) -> int:
     return sum(extrapolate(report)[0] for report in reports)
 
 
+def load_input(fname: str = None):
+    """
+    Load input from given file (or input.txt by default)
+    using task specific parser/line_parser
+    """
+    return utils.load_input(fname, line_parser=parse)
+
+
 tests = [
-    (load_input('test.1.txt', line_parser=parse), 18+28+68, -3+0+5),
+    (load_input('test.1.txt'), 18+28+68, -3+0+5),
 ]
 
 
 reals = [
-    (load_input(line_parser=parse), 1980437560, 977)
+    (load_input(), 1980437560, 977)
 ]
 
 
 if __name__ == '__main__':
-    run_tests(DAY, tests, solve_p1, solve_p2)
-    # run_real(DAY, reals, solve_p1, solve_p2)
+    utils.run_tests(DAY, tests, solve_p1, solve_p2)
+    utils.run_real(DAY, reals, solve_p1, solve_p2)
