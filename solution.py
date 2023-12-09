@@ -10,10 +10,22 @@ import sys
 from typing import List, Dict, Tuple
 from dataclasses import dataclass
 
-from aoc.utils import load_input, run_tests, run_real, dprint, to_numbers
+from aoc import utils
+from aoc.utils import dprint, to_numbers
+
 
 DAY = 'DD'  # TODO
 DEBUG = int(os.environ.get('DEBUG', 0))
+
+
+def solve_part_1(fname: str):
+    res = solve_p1(load_input(fname))
+    print(res)
+
+
+def solve_part_2(fname: str):
+    res = solve_p2(load_input(fname))
+    print(res)
 
 
 def parse(line: str) -> str:
@@ -33,17 +45,26 @@ def solve_p2(lines: List[str]) -> int:
     return 0
 
 
+def load_input(fname: str = None):
+    """
+    Load input from given file (or input.txt by default)
+    using task specific parser/line_parser
+    """
+    # TODO: fix loading parameters if necessary
+    return utils.load_input(fname, line_parser=parse)
+
+
 tests = [
-    # (load_input('test.1.txt', line_parser=parse), exp1, None),
+    # (load_input('test.1.txt'), exp1, None),
     # TODO
 ]
 
 
 reals = [
-    # (load_input(line_parser=parse), None, None)
+    # (load_input(), None, None)
 ]
 
 
 if __name__ == '__main__':
-    run_tests(DAY, tests, solve_p1, solve_p2)
-    # run_real(DAY, reals, solve_p1, solve_p2)
+    utils.run_tests(DAY, tests, solve_p1, solve_p2)
+    utils.run_real(DAY, reals, solve_p1, solve_p2)
