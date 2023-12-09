@@ -1,6 +1,7 @@
 
 import os
 import sys
+import re
 from typing import Union, Optional, Tuple
 from types import ModuleType
 from importlib import import_module
@@ -101,6 +102,16 @@ def load_solution_for_day(day: Union[str, int]) -> Optional[ModuleType]:
     return mdl
 
 
+def add_cwd(filepath: str):
+    """If given `filepath` is not absolute, make it to absolute path
+    by prepending current directory that is the directory from which
+    the script is run.
+    """
+    if os.path.isabs(filepath):
+        return filepath
+    return os.path.join(os.getcwd(), filepath)
+
+
 @click.group(context_settings=CLICK_CONTEXT_SETTINGS)
 def main():
     """Solutions to AoC 2023"""
@@ -108,14 +119,38 @@ def main():
 
 
 @main.command()
-@click.argument('days', cls=DaysArgument)
+@click.argument('days', metavar="[DAYS] [FILES]", cls=DaysArgument)
 @click.option('-p', '--part', 'parts', cls=PartsOption)
 def solve(days: Tuple[str], parts: Tuple[str]):
-    """Run solution(s) on the real inputs."""
-    # print(f"Solving real... days {days} parts {parts}")
+    """Run solution(s) on the real inputs for given days.
+
+    DAYS, one or many, are given as numbers from 1 to 25. If none is
+    given, solutions for all days will be run, as long as a solution
+    is available.
+
+    If FILES is/are provided, they are used as inputs. If not provided,
+    default inputs are used.
+    """
+    # separate numbers from paths to file
+    files = [d for d in days if not re.match(r'\d+$', d)]
+    days = [d for d in days if re.match(r'\d+$', d)]
+    #print(f"Solving real... days {days} parts {parts} for files {files}")
+
     for d in days:
         solution = load_solution_for_day(d)
-        if solution:
+        if not solution:
+            continue
+
+        if files:
+            # if files were given on the command line, use them as input
+            for f in files:
+                if '1' in parts:
+                    solution.solve_part_1(add_cwd(f))
+                if '2' in parts:
+                    solution.solve_part_2(add_cwd(f))
+
+        else:
+            # otherwise, use default inputs
             utils.run_real(
                 solution.DAY,
                 solution.reals,
