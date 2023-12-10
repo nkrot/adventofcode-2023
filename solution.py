@@ -4,15 +4,14 @@
 #
 #
 
-import re
 import os
+import re
 import sys
-from typing import List, Dict, Tuple
 from dataclasses import dataclass
+from typing import Dict, List, Tuple
 
 from aoc import utils
 from aoc.utils import dprint, to_numbers
-
 
 DAY = 'DD'  # TODO
 DEBUG = int(os.environ.get('DEBUG', 0))
