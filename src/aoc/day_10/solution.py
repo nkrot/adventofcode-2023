@@ -70,10 +70,7 @@ class Tile:
         ]
 
     def is_connected_to(self, other: 'Tile') -> bool:
-        """
-        TODO: this will not work for two S-Tiles but they are not possible
-        in this task, so we ignore this situation.
-        """
+        """Test if the current Tile is connected to given Tile"""
         assert isinstance(other, type(self))
         if self.is_ground() or other.is_ground():
             return False
