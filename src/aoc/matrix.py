@@ -47,7 +47,26 @@ class Matrix(object):
         else:
             return default
 
+    def __repr__(self):
+        # Weird, not sure if I need it :)
+        row_sep, col_sep = "\n", ", "
+        values = row_sep.join(
+            "[{}]".format(col_sep.join(repr(v) for v in row))
+            for row in self.values
+        )
+        values = "[\n{}\n]".format(values)
+        return "<{}: values={}>".format(self.__class__.__name__, values)
+
     def __str__(self):
+        row_sep, col_sep = "\n", ""
+        return row_sep.join(
+            col_sep.join(str(v) for v in row)
+            for row in self.values
+        )
+
+    def __str__orig(self):
+        row = self.values[0]
+        print(type(row), dir(row))
         return "\n".join([str(row) for row in self.values])
 
     def __iter__(self):
