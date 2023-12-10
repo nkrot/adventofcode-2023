@@ -192,9 +192,9 @@ def stretch(src_mtx: Matrix) -> Matrix:
     # the matrix. For this, convert some StretchTiles to | or -
     offsets = [
         [(0, -1), (0, 1), "-"],  # to reach tiles in horizontal direction
-        [(-1, 0), (1, 0), "|"],  # to reach tiles in vectical direction
+        [(-1, 0), (1, 0), "|"],  # to reach tiles in vertical direction
     ]
-    for xy, tile in mtx.findall(lambda t: isinstance(t, StretchTile)):
+    for xy, tile in mtx.findall(lambda t: type(t) is StretchTile):
         connected = False
         for (pre, post, sign) in offsets:
             if connected:
@@ -209,7 +209,7 @@ def stretch(src_mtx: Matrix) -> Matrix:
                 connected = True
 
     # Finally, fix Tile.pos to be relative to the stretched matrix
-    for xy, tile in mtx.findall(lambda t: isinstance(t, Tile)):
+    for xy, tile in mtx.findall(lambda t: type(t) is Tile):
         tile.pos = xy
 
     #print(f"--- Stretched ---\n{mtx.shape()}\n{repr(mtx)}")
