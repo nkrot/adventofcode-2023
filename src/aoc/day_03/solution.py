@@ -10,7 +10,8 @@ import sys
 from typing import List, Tuple, Dict
 from dataclasses import dataclass
 
-from aoc.utils import load_input, run_tests, run_real, Point, prod
+from aoc import Point
+from aoc.utils import load_input, run_tests, run_real, prod
 
 DAY = '03'
 DEBUG = int(os.environ.get('DEBUG', 0))
