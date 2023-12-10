@@ -1,4 +1,4 @@
-from typing import Tuple, Any, Callable, Optional
+from typing import Tuple, Any, Callable, Optional, List
 
 
 class Matrix(object):
@@ -53,7 +53,7 @@ class Matrix(object):
     def __iter__(self):
         return MatrixIterator(self)
 
-    def find(self, predicate: Callable):
+    def find(self, predicate: Callable) -> Optional[Tuple]:
         """
         TODO: any predicate to check xy? is it useful?
         """
@@ -61,6 +61,13 @@ class Matrix(object):
             if predicate(value):
                 return xy, value
         return None
+
+    def findall(self, predicate: Callable) -> List[Tuple]:
+        selected = []
+        for xy, value in self:
+            if predicate(value):
+                selected.append((xy, value))
+        return selected
 
 class MatrixIterator(object):
 
