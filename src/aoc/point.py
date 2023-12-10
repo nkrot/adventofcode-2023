@@ -12,24 +12,32 @@ class Point(Vector):
 
     def around4(self) -> List['Point']:
         """List points around current point along height and width.
+        Points with negative coordinates are excluded.
 
         TODO: in case of 3D point, also along depth
         """
         if len(self) > 2:
             raise NotImplementedError("3D point pending implementation")
         offsets = ((-1, 0), (0, 1), (1, 0), (0, -1))
-        return [self + offset for offset in offsets]
+        pts = [self + offset for offset in offsets]
+        # select points with positive coordinates only
+        pts = [pt for pt in pts if all(x > -1 for x in self)]
+        return pts
 
     def around8(self) -> List['Point']:
         """List points around current point along height and width
         including diagonals.
+        Points with negative coordinates are excluded.
 
         TODO: in case of 3D point, also along depth
         """
         if len(self) > 2:
             raise NotImplementedError("3D point pending implementation")
         offsets = ((-1, 0), (-1, 1), (0, 1), (1,1), (1, 0), (1,-1), (0, -1), (-1, -1))
-        return [self + offset for offset in offsets]
+        pts = [self + offset for offset in offsets]
+        # select points with positive coordinates only
+        pts = [pt for pt in pts if all(x > -1 for x in self)]
+        return pts
 
     @property
     def x(self):
