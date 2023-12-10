@@ -21,7 +21,7 @@ class Point(Vector):
         offsets = ((-1, 0), (0, 1), (1, 0), (0, -1))
         pts = [self + offset for offset in offsets]
         # select points with positive coordinates only
-        pts = [pt for pt in pts if all(x > -1 for x in self)]
+        pts = [pt for pt in pts if all(crd > -1 for crd in pt)]
         return pts
 
     def around8(self) -> List['Point']:
@@ -36,7 +36,7 @@ class Point(Vector):
         offsets = ((-1, 0), (-1, 1), (0, 1), (1,1), (1, 0), (1,-1), (0, -1), (-1, -1))
         pts = [self + offset for offset in offsets]
         # select points with positive coordinates only
-        pts = [pt for pt in pts if all(x > -1 for x in self)]
+        pts = [pt for pt in pts if all(crd > -1 for crd in pt)]
         return pts
 
     @property
