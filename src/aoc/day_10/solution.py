@@ -69,12 +69,19 @@ class Tile:
             for dxy in self.ENDS[self.shape]
         ]
 
-    def can_connect_to(self, other: 'Tile') -> bool:
+    def is_connected_to(self, other: 'Tile') -> bool:
+        """
+        TODO: this will not work for two S-Tiles but they are not possible
+        in this task, so we ignore this situation.
+        """
         assert isinstance(other, type(self))
-        for xy in self.ends():
-            if xy == other.pos:
-                return True
-        return False
+        if self.is_ground() or other.is_ground():
+            return False
+        oks = [
+            any(xy == other.pos for xy in self.ends()),
+            any(xy == self.pos for xy in other.ends())
+        ]
+        return all(oks)
 
     def __str__(self):
         return str(self.shape)
@@ -153,21 +160,13 @@ def visit_all_pipe_tiles(mtx: Matrix, start: Tile) -> List[Tile]:
         visited_tiles.append(tile)
         for neighbour_pos in tile.ends():
             neighbour_tile = mtx.get(neighbour_pos)
-
-            if not neighbour_tile:
-                continue
-
-            if neighbour_tile in visited_tiles or neighbour_tile.is_ground():
-                continue
-
-            if tile.is_start() and not neighbour_tile.can_connect_to(tile):
-                # starting point requires a special check because we dont
-                # know its shape: perform a reverse check, that is whether
-                # the neighbouring tile can connect to the starting point.
-                continue
-
-            neighbour_tile.distance = tile.distance + 1
-            heads.append(neighbour_tile)
+            if (neighbour_tile
+                and neighbour_tile not in visited_tiles
+                and not neighbour_tile.is_ground()
+                and neighbour_tile.is_connected_to(tile)
+            ):
+                neighbour_tile.distance = tile.distance + 1
+                heads.append(neighbour_tile)
 
     return visited_tiles
 
@@ -191,29 +190,23 @@ def stretch(src_mtx: Matrix) -> Matrix:
 
     # Reconnect pipe segments that became interrupted by stretching
     # the matrix. For this, convert some StretchTiles to | or -
+    offsets = [
+        [(0, -1), (0, 1), "-"],  # to reach tiles in horizontal direction
+        [(-1, 0), (1, 0), "|"],  # to reach tiles in vectical direction
+    ]
     for xy, tile in mtx.findall(lambda t: isinstance(t, StretchTile)):
-        # horizontally
-        left_tile = mtx.get(Point(xy) + (0, -1))
-        right_tile = mtx.get(Point(xy) + (0, 1))
-        dprint("LeTile", repr(left_tile))
-        dprint("RiTile", repr(right_tile))
-        if not left_tile or not right_tile:
-            continue
-        if left_tile.can_connect_to(right_tile):
-            mtx[xy].shape = "-"
-            dprint("..connected", repr(mtx[xy]))
-            continue
-
-        top_tile = mtx.get(Point(xy) + (-1, 0))
-        bottom_tile = mtx.get(Point(xy) + (1, 0))
-        dprint("TopTile", repr(top_tile))
-        dprint("DwnTile", repr(bottom_tile))
-        if not top_tile or not bottom_tile:
-            continue
-        if top_tile.can_connect_to(bottom_tile):
-            mtx[xy].shape = "|"
-            dprint("..connected", repr(mtx[xy]))
-            continue
+        connected = False
+        for (pre, post, sign) in offsets:
+            if connected:
+                break
+            pre_tile = mtx.get(Point(xy) + pre)
+            post_tile = mtx.get(Point(xy) + post)
+            dprint("PreTile", repr(pre_tile))
+            dprint("PstTile", repr(post_tile))
+            if (pre_tile and post_tile and pre_tile.is_connected_to(post_tile)):
+                mtx[xy].shape = sign
+                dprint("..connecting", repr(mtx[xy]))
+                connected = True
 
     # Finally, fix Tile.pos to be relative to the stretched matrix
     for xy, tile in mtx.findall(lambda t: isinstance(t, Tile)):
@@ -237,19 +230,21 @@ def visit_all_ground_tiles(mtx: Matrix):
         dprint("Visiting", repr(tile))
         for neighbour_pos in Point.around4(tile.pos):
             neighbour_tile = mtx.get(neighbour_pos)
-            if not neighbour_tile:
-                continue
-            if neighbour_tile in visited_tiles:
+            if (not neighbour_tile
+                or not neighbour_tile.is_ground()
+                or neighbour_tile in visited_tiles
+            ):
                 continue
             if neighbour_tile in heads:
                 # since the same vertex can be reachable from all its
                 # neighbours, here we ensure that we dont visit the vertex
-                # if it is alredy schedules for visiting
+                # if it is alredy scheduled for visiting
                 continue
-            if neighbour_tile.is_ground():
-                heads.append(neighbour_tile)
+            heads.append(neighbour_tile)
     if DEBUG:
         # for visualization, mark all visited tiles differently
+        # TODO: create a copy for visualization! mutating the original
+        # object is a bad idea, cuz Tile.is_ground() is affected.
         for tile in visited_tiles:
             tile.shape = "*"
         print(f"--- Reach all ground tiles ---\n{mtx}")
@@ -257,12 +252,12 @@ def visit_all_ground_tiles(mtx: Matrix):
 
 
 def erase_tiles_outside_of_loop(mtx: Matrix):
-    """Mark all tiles that do not belong to the loop as ground tiles"""
+    """Mark all tiles that do not belong to the loop as Ground tiles"""
     dprint("Erasing tiles outside of loop...")
     _, start = mtx.find(lambda t: t.is_start())
-    visited_tiles = visit_all_pipe_tiles(mtx, start)
+    loop_tiles = visit_all_pipe_tiles(mtx, start)
     for _, tile in mtx:
-        if tile not in visited_tiles:
+        if tile not in loop_tiles:
             tile.make_ground()
     dprint(f"--- Non-loop tiles removed ---\n{mtx}")
 
