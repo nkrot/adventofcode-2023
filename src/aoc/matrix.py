@@ -6,6 +6,10 @@ class Matrix(object):
 
     Implementing it for fun.
     Not as good as pandas dataframe
+
+    TODO:
+    allow passing a callable as a parameter to __init__ for constructing
+    a new value.
     """
     def __init__(self, *args):
         if len(args) == 1:
@@ -15,6 +19,7 @@ class Matrix(object):
             self.values = args[0]  # TODO: make a copy of 2 levels
         elif len(args) > 1:
             n_rows, n_cols = args[:2]
+            # TODO: is callable, get value by envoking it
             value = args[2] if len(args) > 2 else 0
             self.values = [[value] * n_cols for _ in range(n_rows)]
 
