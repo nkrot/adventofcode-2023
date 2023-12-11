@@ -27,6 +27,15 @@ def solve_part_2(fname: str):
     print(res)
 
 
+def load_input(fname: str = None):
+    """
+    Load input from given file (or input.txt by default)
+    using task specific parser/line_parser
+    """
+    # TODO: fix loading parameters if necessary
+    return utils.load_input(fname, line_parser=parse)
+
+
 def parse(line: str) -> str:
     """Parse a line of input into suitable data structure:
     """
@@ -42,15 +51,6 @@ def solve_p1(lines: List[str]) -> int:
 def solve_p2(lines: List[str]) -> int:
     """Solution to the 2nd part of the challenge"""
     return 0
-
-
-def load_input(fname: str = None):
-    """
-    Load input from given file (or input.txt by default)
-    using task specific parser/line_parser
-    """
-    # TODO: fix loading parameters if necessary
-    return utils.load_input(fname, line_parser=parse)
 
 
 tests = [
