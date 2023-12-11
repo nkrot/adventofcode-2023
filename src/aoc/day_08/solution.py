@@ -4,20 +4,28 @@
 #
 #
 
-import re
-import os
-import sys
-from typing import List, Dict, Tuple, Callable
-from collections import defaultdict
-from pprint import pprint
 import math
+import os
+import re
 from functools import reduce
+from pprint import pprint
+from typing import Callable, Dict, List, Tuple
 
-from aoc.utils import load_input, run_tests, run_real, dprint, flatten
-
+from aoc import utils
+from aoc.utils import dprint
 
 DAY = '08'
 DEBUG = int(os.environ.get('DEBUG', 0))
+
+
+def solve_part_1(fname: str):
+    res = solve_p1(load_input(fname))
+    print(res)
+
+
+def solve_part_2(fname: str):
+    res = solve_p2(load_input(fname))
+    print(res)
 
 
 class LRI:
@@ -166,18 +174,26 @@ def solve_p2_v1(args) -> int:
     return c_steps + 1
 
 
+def load_input(fname: str = None):
+    """
+    Load input from given file (or input.txt by default)
+    using task specific parser/line_parser
+    """
+    return utils.load_input(fname, parser=parse)
+
+
 tests = [
-     (load_input('test.1.txt', parser=parse), 2, None),
-     (load_input('test.2.txt', parser=parse), 6, None),
-     (load_input('test.3.txt', parser=parse), None, 6),
+     (load_input('test.1.txt'), 2, None),
+     (load_input('test.2.txt'), 6, None),
+     (load_input('test.3.txt'), None, 6),
 ]
 
 
 reals = [
-    (load_input(parser=parse), 20221, 14616363770447)
+    (load_input(), 20221, 14616363770447)
 ]
 
 
 if __name__ == '__main__':
-    run_tests(DAY, tests, solve_p1, solve_p2)
-    run_real(DAY, reals, solve_p1, solve_p2)
+    utils.run_tests(DAY, tests, solve_p1, solve_p2)
+    utils.run_real(DAY, reals, solve_p1, solve_p2)
