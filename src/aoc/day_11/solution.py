@@ -7,7 +7,7 @@
 import os
 import re
 import sys
-from dataclasses import dataclass
+import itertools
 from typing import Dict, List, Tuple
 
 from aoc import utils, Matrix, Point
@@ -67,10 +67,18 @@ def compute_distances(galaxies: List[Point]) -> List[int]:
     """Given a list of Points, compute distances between every two points
     and return the distances as a list
     """
-    distances = []
-    for i in range(len(galaxies)):
-        for j in range(i+1, len(galaxies)):
-            distances.append(galaxies[i].l1_dist(galaxies[j]))
+
+    # original implementation
+    # distances = []
+    # for i in range(len(galaxies)):
+    #     for j in range(i+1, len(galaxies)):
+    #         distances.append(galaxies[i].l1_dist(galaxies[j]))
+
+    distances = [
+        g1.l1_dist(g2)
+        for g1, g2 in itertools.combinations(galaxies, 2)
+    ]
+
     return distances
 
 
