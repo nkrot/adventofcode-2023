@@ -11,7 +11,7 @@ from . import utils
 
 
 CLICK_CONTEXT_SETTINGS = {
-    "help_option_names": ['-h', '--help']
+    "help_option_names": ['-h', '--help'],
 }
 
 
@@ -178,6 +178,15 @@ def test(days: Tuple[str], parts: Tuple[str]):
                 solution.solve_p1 if '1' in parts else None,
                 solution.solve_p2 if '2' in parts else None,
             )
+
+
+@main.command(name="list")
+def list_days():
+    """List available days.
+
+    No guarantee they are solved :)
+    """
+    print(list_available_days())
 
 
 if __name__ == "__main__":
