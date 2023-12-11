@@ -19,22 +19,22 @@ DEBUG = int(os.environ.get('DEBUG', 0))
 
 
 class Galaxy(Point):
+    """For better naming"""
     pass
 
 
 def solve_part_1(fname: str):
-    res = solve_p1(load_input(fname))
+    res = solve_p1((load_input(fname), None))
     print(res)
 
 
 def solve_part_2(fname: str):
-    res = solve_p2(load_input(fname))
+    res = solve_p2((load_input(fname), None))
     print(res)
 
 
 def parse(lines: List[str]) -> Matrix:
-    """Parse a line of input into suitable data structure:
-    """
+    """Parse a line of input into suitable data structure"""
     rows = []
     for line in lines:
         rows.append(list(line))
@@ -44,6 +44,7 @@ def parse(lines: List[str]) -> Matrix:
 
 
 def stretch_vertically(mtx: Matrix) -> Matrix:
+    """part of solve_p1_v1"""
     rows = []
     for row in mtx.rows():
         rows.append(row)
@@ -55,47 +56,68 @@ def stretch_vertically(mtx: Matrix) -> Matrix:
 
 
 def stretch(mtx: Matrix) -> Matrix:
+    """part of solve_p1_v1"""
     m = stretch_vertically(mtx).transpose()
     res = stretch_vertically(m).transpose()
     dprint(f"--- Expanded ---\n{res.shape()}\n{res}")
     return res
 
+
 def compute_distances(galaxies: List[Point]) -> List[int]:
+    """Given a list of Points, compute distances between every two points
+    and return the distances as a list
+    """
     distances = []
     for i in range(len(galaxies)):
         for j in range(i+1, len(galaxies)):
             distances.append(galaxies[i].l1_dist(galaxies[j]))
     return distances
 
+
 def solve_p1(args) -> int:
-    """Solution to the 1st part of the challenge"""
-    mtx, _ = args
-    galaxies = []
-    for xy, _ in stretch(mtx).findall(lambda v: v == '#'):
-        galaxies.append(Point(xy))
+    # return solve_p1_v1(args)
+    return solve_p1_v2(args)
+
+
+def solve_p1_v2(args) -> int:
+    """Solution to the 1st part of the challenge based on the algorithm
+    from the 2nd part.
+    """
+    return solve_p2((args[0], 2))
+
+
+def solve_p1_v1(args) -> int:
+    """Solution to the 1st part of the challenge, before implementing part 2
+    """
+    universe: Matrix = stretch(args[0])
+    galaxies = [
+        Point(xy)
+        for xy, _ in universe.findall(lambda v: v == '#')
+    ]
     dprint("Galaxy coordinates", galaxies)
     return sum(compute_distances(galaxies))
 
 
 def solve_p2(args) -> int:
     """Solution to the 2nd part of the challenge"""
-    mtx, expansion_coefficient = args
+    mtx = args[0]
+    expansion_coefficient = args[1] or 1000000  # real value for p2
 
-    galaxies = []
-    for xy, value in mtx:
-        if value == "#":
-            galaxies.append(Galaxy(*xy))
+    galaxies = [
+        Galaxy(*xy)
+        for xy, value in mtx if value == "#"
+    ]
     dprint("Galaxies 0", galaxies)
 
     maxx, maxy = Point(mtx.shape()) - (1,1)
     for x, row in enumerate(reversed(mtx.rows())):
         if all(s == "." for s in row):
-            expand_universe(galaxies, (maxx-x, None) , expansion_coefficient-1)
+            expand_universe(galaxies, (maxx-x, None) , expansion_coefficient)
     dprint("Galaxies x", galaxies)
 
     for y, column in enumerate(reversed(mtx.columns())):
         if all(s == "." for s in column):
-            expand_universe(galaxies, (None, maxy-y) , expansion_coefficient-1)
+            expand_universe(galaxies, (None, maxy-y) , expansion_coefficient)
     dprint("Galaxies y", galaxies)
 
     return sum(compute_distances(galaxies))
@@ -105,9 +127,9 @@ def expand_universe(galaxies, xy, coefficient):
     x, y = xy
     for g in galaxies:
         if x is not None and g.x > x:
-            g.x += coefficient
+            g.x += (coefficient - 1)
         if y is not None and g.y > y:
-            g.y += coefficient
+            g.y += (coefficient - 1)
 
 
 def load_input(fname: str = None):
@@ -119,7 +141,7 @@ def load_input(fname: str = None):
 
 
 tests = [
-    ((load_input('test.1.txt'), 1), 374, None),
+    ((load_input('test.1.txt'), None), 374, None),
 
     # part 2
     ((load_input('test.1.txt'), 2), None, 374),
