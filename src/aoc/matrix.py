@@ -23,7 +23,7 @@ class Matrix(object):
             value = args[2] if len(args) > 2 else 0
             self.values = [[value] * n_cols for _ in range(n_rows)]
 
-    def shape(self):
+    def shape(self) -> Tuple[int, int]:
         return (len(self.values), len(self.values[0]))
 
     def _is_in_span(self, xy: Tuple[int, int]) -> bool:
@@ -77,6 +77,14 @@ class Matrix(object):
     def __iter__(self):
         return MatrixIterator(self)
 
+    def transpose(self):
+        shape = reversed(self.shape())
+        other = type(self)(*shape)
+        for xy, val in self:
+            x, y = xy
+            other[(y,x)] = val
+        return other
+
     def find(self, predicate: Callable) -> Optional[Tuple]:
         """
         TODO: any predicate to check xy? is it useful?
@@ -92,6 +100,9 @@ class Matrix(object):
             if predicate(value):
                 selected.append((xy, value))
         return selected
+
+    def rows(self):
+        return self.values
 
 class MatrixIterator(object):
 
