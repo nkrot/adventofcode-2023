@@ -4,17 +4,34 @@
 #
 #
 
-import re
 import os
-import sys
-from typing import List, Tuple, Dict
+import re
 from dataclasses import dataclass
+from typing import Dict, List, Tuple
 
-from aoc import Point
-from aoc.utils import load_input, run_tests, run_real, prod
+from aoc import Point, utils
+from aoc.utils import prod, dprint
 
 DAY = '03'
 DEBUG = int(os.environ.get('DEBUG', 0))
+
+
+def solve_part_1(fname: str):
+    res = solve_p1(load_input(fname))
+    print(res)
+
+
+def solve_part_2(fname: str):
+    res = solve_p2(load_input(fname))
+    print(res)
+
+
+def load_input(fname: str = None):
+    """
+    Load input from given file (or input.txt by default)
+    using task specific parser/line_parser
+    """
+    return utils.load_input(fname, parser=parse)
 
 
 @dataclass
@@ -50,9 +67,8 @@ def parse(lines: List[str]) -> Tuple[Dict[Point, PartNumber], Dict[Point, str]]:
         for m in re.finditer(r'([^\d.])', line):
             symbols[Point(i, m.start())] = m[0]
 
-    if DEBUG:
-        print(f"numbers:\n{numbers}")
-        print(f"symbols:\n{symbols}")
+    dprint(f"numbers:\n{numbers}")
+    dprint(f"symbols:\n{symbols}")
 
     return numbers, symbols
 
@@ -102,15 +118,15 @@ def solve_p2(args) -> int:
 
 
 tests = [
-    (load_input('test.1.txt', parser=parse), 4361, 16345+451490),
+    (load_input('test.1.txt'), 4361, 16345+451490),
 ]
 
 
 reals = [
-    (load_input(parser=parse), 527144, 81463996)
+    (load_input(), 527144, 81463996)
 ]
 
 
 if __name__ == '__main__':
-    run_tests(DAY, tests, solve_p1, solve_p2)
-    run_real(DAY, reals, solve_p1, solve_p2)
+    utils.run_tests(DAY, tests, solve_p1, solve_p2)
+    utils.run_real(DAY, reals, solve_p1, solve_p2)
