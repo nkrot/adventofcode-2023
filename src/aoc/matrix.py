@@ -104,6 +104,9 @@ class Matrix(object):
     def rows(self):
         return self.values
 
+    def columns(self):
+        return self.transpose().rows()
+
 class MatrixIterator(object):
 
     def __init__(self, matrix):
