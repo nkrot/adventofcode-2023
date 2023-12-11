@@ -43,13 +43,25 @@ class Point(Vector):
     def x(self):
         return self[0]
 
+    @x.setter
+    def x(self, value: int):
+        self.values[0] = value
+
     @property
     def y(self):
         return self[1]
 
+    @y.setter
+    def y(self, value: int):
+        self.values[1] = value
+
     @property
     def z(self):
         return self[2]
+
+    @z.setter
+    def z(self, value: int):
+        self.values[2] = value
 
     def l1_dist(self, other: 'Point') -> int:
         """L1 distance aka Manhattan distance"""
