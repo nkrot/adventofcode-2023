@@ -67,8 +67,10 @@ class Point(Vector):
         """L1 distance aka Manhattan distance"""
         return sum(*abs(self - other))
 
-    def __lt__(self, other: 'Point'):
+    def __lt__(self, other: 'Point') -> bool:
+        """TODO: I wonder why I implemented it like this..."""
         return self.x < other.x or self.x == other.x and self.y < other.y
+
 
 class DirectedPoint(Point):
     """A point that has an idea of direction.
