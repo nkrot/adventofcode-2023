@@ -6,15 +6,34 @@
 
 import re
 import os
-import sys
-from typing import List, Tuple
+from typing import List
 from dataclasses import dataclass
 from operator import attrgetter
 
-from aoc.utils import load_input, run_tests, run_real, to_numbers
+from aoc import utils
+from aoc.utils import to_numbers
+
 
 DAY = '04'
 DEBUG = int(os.environ.get('DEBUG', 0))
+
+
+def solve_part_1(fname: str):
+    res = solve_p1(load_input(fname))
+    print(res)
+
+
+def solve_part_2(fname: str):
+    res = solve_p2(load_input(fname))
+    print(res)
+
+
+def load_input(fname: str = None):
+    """
+    Load input from given file (or input.txt by default)
+    using task specific parser/line_parser
+    """
+    return utils.load_input(fname, line_parser=parse)
 
 
 @dataclass
@@ -55,15 +74,15 @@ def solve_p2(cards: List[Card]) -> int:
 
 
 tests = [
-    (load_input('test.1.txt', line_parser=parse), 13, 30),
+    (load_input('test.1.txt'), 13, 30),
 ]
 
 
 reals = [
-    (load_input(line_parser=parse), 22193, 5625994)
+    (load_input(), 22193, 5625994)
 ]
 
 
 if __name__ == '__main__':
-    run_tests(DAY, tests, solve_p1, solve_p2)
-    run_real(DAY, reals, solve_p1, solve_p2)
+    utils.run_tests(DAY, tests, solve_p1, solve_p2)
+    utils.run_real(DAY, reals, solve_p1, solve_p2)
