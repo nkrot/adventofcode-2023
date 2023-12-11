@@ -4,16 +4,34 @@
 #
 #
 
-import re
 import os
-import sys
-from typing import List
 from dataclasses import dataclass
+from typing import List
 
-from aoc.utils import load_input, run_tests, run_real, to_numbers, prod
+from aoc import utils
+from aoc.utils import prod, to_numbers
+
 
 DAY = '06'
 DEBUG = int(os.environ.get('DEBUG', 0))
+
+
+def solve_part_1(fname: str):
+    res = solve_p1(load_input(fname))
+    print(res)
+
+
+def solve_part_2(fname: str):
+    res = solve_p2(load_input(fname))
+    print(res)
+
+
+def load_input(fname: str = None):
+    """
+    Load input from given file (or input.txt by default)
+    using task specific parser/line_parser
+    """
+    return utils.load_input(fname, parser=parse)
 
 
 @dataclass
@@ -92,15 +110,15 @@ def solve_p2(races: List[RaceRecord]) -> int:
 
 
 tests = [
-    (load_input('test.1.txt', parser=parse), 4*8*9, 71503),
+    (load_input('test.1.txt'), 4*8*9, 71503),
 ]
 
 
 reals = [
-    (load_input(parser=parse), 3317888, 24655068)
+    (load_input(), 3317888, 24655068)
 ]
 
 
 if __name__ == '__main__':
-    run_tests(DAY, tests, solve_p1, solve_p2)
-    run_real(DAY, reals, solve_p1, solve_p2)
+    utils.run_tests(DAY, tests, solve_p1, solve_p2)
+    utils.run_real(DAY, reals, solve_p1, solve_p2)
