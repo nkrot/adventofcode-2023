@@ -4,15 +4,32 @@
 #
 #
 
-import re
 import os
-import sys
-from typing import List, Callable
+import re
+from typing import Callable, List
 
 from aoc import utils
 
 DAY = '01'
 DEBUG = int(os.environ.get('DEBUG', 0))
+
+
+def solve_part_1(fname: str):
+    res = solve_p1(load_input(fname))
+    print(res)
+
+
+def solve_part_2(fname: str):
+    res = solve_p2(load_input(fname))
+    print(res)
+
+
+def load_input(fname: str = None):
+    """
+    Load input from given file (or input.txt by default)
+    using task specific parser/line_parser
+    """
+    return utils.load_input(fname)
 
 
 def solve(lines: List[str], selector: Callable) -> int:
@@ -67,17 +84,16 @@ def unspell_and_select_digits(line: str) -> List[int]:
 
 
 tests = [
-    (utils.load_input('test.1.txt'), 142, None),
-    (utils.load_input('test.2.txt'), None, 281),
+    (load_input('test.1.txt'), 142, None),
+    (load_input('test.2.txt'), None, 281),
 ]
 
 
 reals = [
-    (utils.load_input(), 54630, 54770)
+    (load_input(), 54630, 54770)
 ]
 
 
 if __name__ == '__main__':
     utils.run_tests(DAY, tests, solve_p1, solve_p2)
     utils.run_real(DAY, reals, solve_p1, solve_p2)
-
