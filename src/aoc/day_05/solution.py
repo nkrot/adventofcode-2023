@@ -6,14 +6,32 @@
 
 import re
 import os
-import sys
 from typing import List, Tuple, Any, Union
-from dataclasses import dataclass
 
-from aoc.utils import load_input, run_tests, run_real, to_numbers
+from aoc import utils
+from aoc.utils import to_numbers, dprint
+
 
 DAY = '05'
 DEBUG = int(os.environ.get('DEBUG', 0))
+
+
+def solve_part_1(fname: str):
+    res = solve_p1(load_input(fname))
+    print(res)
+
+
+def solve_part_2(fname: str):
+    res = solve_p2(load_input(fname))
+    print(res)
+
+
+def load_input(fname: str = None):
+    """
+    Load input from given file (or input.txt by default)
+    using task specific parser/line_parser
+    """
+    return utils.load_input(fname, parser=parse)
 
 
 class Map:
@@ -201,23 +219,22 @@ def solve_p2(items: List[Tuple]) -> int:
     # for 5.2 it runs 40min on my computer and around 4 minutes with pypy
     for loc in range(max_loc):
         seed = get_seed(loc, items)
-        if DEBUG:
-            print(loc, seed, seed in seeds_mapping)
+        dprint(loc, seed, seed in seeds_mapping)
         if seed in seeds_mapping:
-            print(f"..min loc {loc} from {seed}")
+            dprint(f"..min loc {loc} from {seed}")
             return loc
 
 
 tests = [
-    (load_input('test.1.txt', parser=parse), 35, 46),
+    (load_input('test.1.txt'), 35, 46),
 ]
 
 
 reals = [
-    (load_input(parser=parse), 227_653_707, 78_775_051)
+    (load_input(), 227_653_707, 78_775_051)
 ]
 
 
 if __name__ == '__main__':
-    run_tests(DAY, tests, solve_p1, solve_p2)
-    run_real(DAY, reals, solve_p1, solve_p2)
+    utils.run_tests(DAY, tests, solve_p1, solve_p2)
+    utils.run_real(DAY, reals, solve_p1, solve_p2)
