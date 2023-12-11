@@ -4,9 +4,8 @@
 #
 #
 
-import re
 import os
-import sys
+import re
 from dataclasses import dataclass
 from typing import List, Tuple
 
@@ -14,6 +13,24 @@ from aoc import utils
 
 DAY = '02'
 DEBUG = int(os.environ.get('DEBUG', 0))
+
+
+def solve_part_1(fname: str):
+    res = solve_p1(load_input(fname))
+    print(res)
+
+
+def solve_part_2(fname: str):
+    res = solve_p2(load_input(fname))
+    print(res)
+
+
+def load_input(fname: str = None):
+    """
+    Load input from given file (or input.txt by default)
+    using task specific parser/line_parser
+    """
+    return utils.load_input(fname, line_parser=parse)
 
 
 @dataclass
@@ -72,7 +89,8 @@ def solve_p2(games: list) -> int:
     for game_id, sets in games:
         min_soc = SetOfCubes()
         for soc in sets:
-            # TODO: reimplement using a subtraction and addition?
+            # TODO: overengineering ideas
+            # reimplement using a subtraction and addition?
             for color in SetOfCubes.COLORS:
                 if getattr(soc, color) > getattr(min_soc, color):
                     setattr(min_soc, color, getattr(soc, color))
@@ -81,13 +99,12 @@ def solve_p2(games: list) -> int:
 
 
 tests = [
-    (utils.load_input('test.1.txt', line_parser=parse),
-     8, sum([48, 12, 1560, 630, 36])),
+    (load_input('test.1.txt'), 8, sum([48, 12, 1560, 630, 36])),
 ]
 
 
 reals = [
-    (utils.load_input(line_parser=parse), 2416, 63307)
+    (load_input(), 2416, 63307)
 ]
 
 
