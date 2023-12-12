@@ -8,7 +8,7 @@ import os
 import re
 import sys
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Callable
 
 from aoc import utils
 from aoc.utils import dprint, to_numbers
@@ -36,14 +36,47 @@ def parse(line: str) -> Tuple[List[int], List[int]]:
     #dprint("Input", condition_record, checksums)
     return condition_record, checksums
 
+# How to cache function results
+#https://stackoverflow.com/questions/815110/is-there-a-decorator-to-simply-cache-function-return-values
 
+# w/o memoization
+# T.0.p2: True 525152 525152
+# real 13,90
+# user 13,84
+#
+# w/ memoization
+# T.0.p2: True 525152 525152
+# real 0,30
+# user 0,24
+# sys 0,03
+
+class memoize(dict):
+    """Decorator for memoizing 3 arguments of the function and the result"""
+    def __init__(self, func: Callable):
+        self.nargs = 3  # how many argments to cache
+        self.function = func
+
+    def __call__(self, *args, **kwargs):
+        self.args = args[:self.nargs]
+        return self[self._to_key()]
+
+    def __missing__(self, key):
+        self[key] = self.function(*self.args)
+        return self[key]
+
+    def _to_key(self) -> Tuple[str]:
+        return tuple(str(arg) for arg in self.args)
+
+
+@memoize
 def count_arrangements(
     springs: List[int],
     checksums: List[int],
     current_grp_count: int = 0,
     level: int = 0
 ) -> int:
-    """Returns number of arrangements"""
+    """Returns number of correct arrangements"""
+
     indent = ' ' * level
     dprint("{}Solving[{}]:{}\t{} {}".format(
             indent, level,
@@ -97,22 +130,26 @@ def count_arrangements(
 #     return res
 
 
-def solve_p1(book: List) -> int:
+def solve_p1(records: List[Tuple[List[int], List[int]]]) -> int:
     """Solution to the 1st part of the challenge"""
     # counts = [count_arrangements(record, checksums)
     #           for record, checksums in book]
     counts = []
-    for idx, record in enumerate(book):
-        dprint(f"Starting case {idx}...")
+    for idx, record in enumerate(records):
+        #print(f"Starting case {idx}...")
         counts.append(count_arrangements(*record))
-        dprint("Done. Result =", counts[-1])
+        #print("Done. Result =", counts[-1])
     dprint("All computed counts", counts)
     return sum(counts)
 
 
-def solve_p2(lines: List[str]) -> int:
+def solve_p2(records: List[Tuple[List[int], List[int]]]) -> int:
     """Solution to the 2nd part of the challenge"""
-    return 0
+    unfolded_records = [
+        [springs + ([-1] + springs) * 4, checksums*5]
+        for springs, checksums in records
+    ]
+    return solve_p1(unfolded_records)
 
 
 def load_input(fname: str = None):
@@ -125,7 +162,9 @@ def load_input(fname: str = None):
 
 tests = [
     #(load_input('test.1.txt'), sum([1, 1, 1, 1, 1, 1]), None),
-    #(load_input('test.2.txt'), sum([1, 4, 1, 1, 4, 10]), 525152),
+    (load_input('test.2.txt'),
+     sum([1, 4, 1, 1, 4, 10]),
+     sum([1, 16384, 1, 16, 2500, 506250])),
 
     # test.2.txt L#6
     #([parse("?###???????? 3,2,1")], sum([10]), None),
@@ -134,15 +173,14 @@ tests = [
     #([parse("......?? 1")], 2, None),
     #([parse("??? 1")], 3, None),
     #([parse(".???? 2,1")], 1, None),
-
 ]
 
 
 reals = [
-    (load_input(), 7694, None)
+    (load_input(), 7694, 5071883216318)
 ]
 
 
 if __name__ == '__main__':
     utils.run_tests(DAY, tests, solve_p1, solve_p2)
-    # utils.run_real(DAY, reals, solve_p1, solve_p2)
+    utils.run_real(DAY, reals, solve_p1, solve_p2)
