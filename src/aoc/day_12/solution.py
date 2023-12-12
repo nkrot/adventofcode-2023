@@ -5,13 +5,13 @@
 #
 
 import os
-import re
 import sys
-from dataclasses import dataclass
-from typing import Dict, List, Tuple, Callable
+from typing import Callable, Dict, List, Tuple
 
 from aoc import utils
 from aoc.utils import dprint, to_numbers
+
+sys.setrecursionlimit(1500)  # otherwise python raises RecursionError
 
 DAY = '12'
 DEBUG = int(os.environ.get('DEBUG', 0))
@@ -39,21 +39,25 @@ def parse(line: str) -> Tuple[List[int], List[int]]:
 # How to cache function results
 #https://stackoverflow.com/questions/815110/is-there-a-decorator-to-simply-cache-function-return-values
 
-# w/o memoization
+# user time -p
 # T.0.p2: True 525152 525152
-# real 13,90
-# user 13,84
-#
-# w/ memoization
-# T.0.p2: True 525152 525152
-# real 0,30
-# user 0,24
-# sys 0,03
+# pypy   | w/o memoization | 13,84
+# pypy   | w/  memoization |  0,24
+# python | w/o memoization | 52,94
+# python | w/  memoization |  0,14
+
+# user time -p
+# --- Day 12 p.2 ---
+# True 5071883216318 5071883216318
+# pypy   | w/o memoization | probably days :)
+# pypy   | w/  memoization | 34,32
+# python | w/o memoization | ???
+# python | w/  memoization | 77,56
 
 class memoize(dict):
     """Decorator for memoizing 3 arguments of the function and the result"""
     def __init__(self, func: Callable):
-        self.nargs = 3  # how many argments to cache
+        self.nargs = 3  # how many arguments to cache
         self.function = func
 
     def __call__(self, *args, **kwargs):
