@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aoc2023"
-version = "0.9.0"
+version = "0.12.0"
 authors = [
     {name = "Nikolai Krot", email = "talpus@gmail.com"}
 ]
@@ -24,4 +24,3 @@ where = ["src"]
 
 [project.scripts]
 aoc2023 = "aoc.cli:main"
-
