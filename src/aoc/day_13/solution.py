@@ -5,7 +5,7 @@
 #
 
 import os
-from typing import Dict, List, Tuple, Callable
+from typing import List, Tuple
 from collections import Counter
 
 from aoc import utils, Matrix
@@ -27,16 +27,17 @@ def solve_part_2(fname: str):
 
 class Pattern(Matrix):
 
-    # TODO: it does not work because Matrix.__init__ uses self.__init__()
-    # and self resolved to Field. This should be fixed in Matrix
-    # def __init__(self, lines: List[str], *args):
-    #     print("lines", lines)
-    #     print("args", args)
-    #     tiles = [list(line) for line in lines]
-    #     print("Tiles", tiles)
-    #     super().__init__(tiles)
+    @classmethod
+    def from_lines(cls, lines: List[str]):
+        tiles = [list(line) for line in lines]
+        return cls(tiles)
 
-    pass
+    # if implemented like this, .transpose() is broken. Is my understanding
+    # of inheritance correct? Should Pattern use inheritance or composition
+    # wrt to Matrix?
+    # def __init__(self, lines: List[str]):
+    #     tiles = [list(line) for line in lines]
+    #     super().__init__(tiles)
 
 
 def load_input(fname: str = None):
@@ -50,10 +51,7 @@ def load_input(fname: str = None):
 def parse(lines: List[str]) -> List[Pattern]:
     """Parse a line of input into suitable data structure:
     """
-    patterns = []
-    for grp in utils.group_lines(lines):
-        tiles = [list(line) for line in grp]
-        patterns.append(Pattern(tiles))
+    patterns = [Pattern.from_lines(lns) for lns in utils.group_lines(lines)]
     if DEBUG:
         print("--- Parse --")
         for f in patterns:
@@ -71,7 +69,7 @@ def find_reflection_across_vertical_line(pattern: Pattern) -> List[int]:
             head = list(reversed(row[:i]))
             tail = row[i:]
             ok = all(h == t for h, t in zip(head, tail))
-            dprint(f"Cmp '{''.join(head)}' '{''.join(tail)}' -- {'OK' if ok else ''}")
+            dprint(f"Checking '{''.join(head)}' >< '{''.join(tail)}' -- {'OK' if ok else ''}")
             #dprint(list(zip(head, tail)), ok)
             if ok:
                 reflections[i] += 1
@@ -89,7 +87,7 @@ def find_reflection_across_vertical_line(pattern: Pattern) -> List[int]:
     return refl_columns
 
 
-def find_reflection_lines(pattern: Pattern) -> Tuple[List[int], List[int]]:
+def find_reflections(pattern: Pattern) -> Tuple[List[int], List[int]]:
     dprint("Searching reflection column lines...")
 
     columns = find_reflection_across_vertical_line(pattern)
@@ -104,7 +102,9 @@ def find_reflection_lines(pattern: Pattern) -> Tuple[List[int], List[int]]:
     return (rows, columns)
 
 
-def compute_score(rows, columns) -> int:
+def compute_score(rows: List[int], columns: List[int]) -> int:
+    """Given reflection points in rows and columns in a Pattern, compute
+    the score of that pattern."""
     return sum(columns) + sum(rows) * 100
 
 
@@ -120,13 +120,13 @@ def fix_smudge_and_score(pattern: Pattern) -> int:
         """Rock to Ash and viceversa"""
         return "#" if obj == "." else "."
 
-    initial_reflections = find_reflection_lines(pattern)
+    initial_reflections = find_reflections(pattern)
     initial_score = compute_score(*initial_reflections)
 
     for xy, obj in pattern:
         pattern[xy] = flip(obj)
 
-        reflections = find_reflection_lines(pattern)
+        reflections = find_reflections(pattern)
         score = compute_score(*reflections)
 
         if score and score != initial_score:
@@ -149,7 +149,7 @@ def fix_smudge_and_score(pattern: Pattern) -> int:
 def solve_p1(patterns: List[Pattern]) -> int:
     """Solution to the 1st part of the challenge"""
     scores = [
-        compute_score(*find_reflection_lines(pattern))
+        compute_score(*find_reflections(pattern))
         for pattern in patterns
     ]
     return sum(scores)

@@ -5,7 +5,7 @@ class Matrix(object):
     """Matrix (n_rows, n_cols)
 
     Implementing it for fun.
-    Not as good as pandas dataframe
+    Not as good as pandas dataframe or numpy matrix
 
     TODO:
     allow passing a callable as a parameter to __init__ for constructing
@@ -13,13 +13,14 @@ class Matrix(object):
     """
     def __init__(self, *args):
         if len(args) == 1:
-            # from List[List]
-            # print("Matrix from List[List]")
-            # print(type(self))
-            shape = len(args[0]), len(args[0][0])
-            self.__init__(*shape) # TODO: fucks up inheritance
+            # ex: Matrix(List[List[Any]])
+            # print("From List[List[Any]]")
+            n_rows, n_cols = len(args[0]), len(args[0][0])
+            assert n_rows > 0 and n_cols > 0, (
+                    f"Wrong dimensions requested: {(n_rows, n_cols)}")
             self.values = args[0]  # TODO: make a copy of 2 levels
         elif len(args) > 1:
+            # ex: Matrix(2,3, 100)
             n_rows, n_cols = args[:2]
             # TODO: is callable, get value by envoking it
             value = args[2] if len(args) > 2 else 0
@@ -70,11 +71,6 @@ class Matrix(object):
             col_sep.join(str(v) for v in row)
             for row in self.values
         )
-
-    def __str__orig(self):
-        row = self.values[0]
-        print(type(row), dir(row))
-        return "\n".join([str(row) for row in self.values])
 
     def __iter__(self):
         return MatrixIterator(self)
