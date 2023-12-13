@@ -14,8 +14,10 @@ class Matrix(object):
     def __init__(self, *args):
         if len(args) == 1:
             # from List[List]
+            # print("Matrix from List[List]")
+            # print(type(self))
             shape = len(args[0]), len(args[0][0])
-            self.__init__(*shape)
+            self.__init__(*shape) # TODO: fucks up inheritance
             self.values = args[0]  # TODO: make a copy of 2 levels
         elif len(args) > 1:
             n_rows, n_cols = args[:2]
