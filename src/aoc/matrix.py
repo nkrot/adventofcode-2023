@@ -103,6 +103,7 @@ class Matrix(object):
         return self.values
 
     def columns(self):
+        # TODO: reimplement w/o creating a new matrix?
         return self.transpose().rows()
 
 class MatrixIterator(object):
