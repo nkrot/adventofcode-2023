@@ -33,7 +33,7 @@ class Point(Vector):
         """
         if len(self) > 2:
             raise NotImplementedError("3D point pending implementation")
-        offsets = ((-1, 0), (-1, 1), (0, 1), (1,1), (1, 0), (1,-1), (0, -1), (-1, -1))
+        offsets = ((-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1))
         pts = [self + offset for offset in offsets]
         # select points with positive coordinates only
         pts = [pt for pt in pts if all(crd > -1 for crd in pt)]
