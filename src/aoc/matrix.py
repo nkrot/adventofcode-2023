@@ -29,6 +29,10 @@ class Matrix(object):
     def shape(self) -> Tuple[int, int]:
         return (len(self.values), len(self.values[0]))
 
+    def __len__(self) -> int:
+        r, c = self.shape()
+        return r*c
+
     def _is_in_span(self, xy: Tuple[int, int]) -> bool:
         """Check that given coordinate `xy` exists in the matrix"""
         n_rows, n_cols = self.shape()
