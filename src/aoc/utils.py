@@ -207,3 +207,17 @@ def run_real(
             print(f"--- Day {day} p.2 ---")
             res2 = solve_p2(inp)
             print(test2str(exp2 == res2, exp2, res2))
+
+
+def is_even(obj: Union[int, List[int], Tuple[int]]) -> bool:
+    """Test if a number is even or all numbers in a list are even"""
+    if isinstance(obj, (list, tuple)):
+        return all(map(is_even, obj))
+    return obj % 2 == 0
+
+
+def is_odd(obj: Union[int, List[int], Tuple[int]]) -> bool:
+    """Test if a number is odd or all numbers in a list are odd"""
+    if isinstance(obj, (list, tuple)):
+        return all(map(is_odd, obj))
+    return obj % 2 != 0
