@@ -55,3 +55,7 @@ def test_cw_returns_self(upward):
 def test_ccw_returns_self(downward):
     obj_id = id(downward)
     assert obj_id == id(downward.ccw())
+
+# TODO
+# - direction can be created from Tuple or Point
+# - __eq__ can compare against other Direction or string (v^<>)

@@ -1,5 +1,7 @@
-from typing import Union, List
+from typing import List, Union
+
 from .vector import Vector
+
 
 class Point(Vector):
     """for purposes of clearer naming"""
@@ -68,7 +70,9 @@ class Point(Vector):
         return sum(*abs(self - other))
 
     def __lt__(self, other: 'Point') -> bool:
-        """TODO: I wonder why I implemented it like this..."""
+        """TODO: I wonder why I implemented it like this...
+        why is z coordinate not taken into account?
+        """
         return self.x < other.x or self.x == other.x and self.y < other.y
 
 

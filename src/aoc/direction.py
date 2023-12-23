@@ -1,3 +1,4 @@
+from typing import Tuple, Union
 
 from .point import Point
 
@@ -15,11 +16,24 @@ class Direction(Point):
         (-1, 0),
     ]
 
-    def __init__(self, sign: str):
-        if sign not in self.SIGNS:
-            raise ValueError(f"Invalid direction spec: '{sign}'")
-        self.sign = sign
+    def __init__(self, sign: Union[str, Tuple[int, int], Point]):
+        self.sign = None
+        if isinstance(sign, str):
+            if sign not in self.SIGNS:
+                raise ValueError(f"Invalid direction spec: '{sign}'")
+            self.sign = sign
+        else:
+            self.sign = self.SIGNS[self.OFFSETS.index(tuple(sign))]
         super().__init__(self._dxy())
+
+    def __eq__(self, other: Union['Direction', str]) -> bool:
+        """TODO: other can be given as Tuple[int,int] or Point"""
+        if isinstance(other, type(self)):
+            return self.sign == other.sign
+        elif isinstance(other, str):
+            return self.sign == other
+        else:
+            raise ValueError(f"Comparing with {type(other)} ({other}) not supported (yet)")
 
     def _dxy(self):
         """TODO: make it public?"""
