@@ -1,5 +1,6 @@
 from typing import Callable
 
+import matplotlib.pyplot as plt
 import networkx as nx
 
 
@@ -73,3 +74,102 @@ def _all_simple_paths_in_graph(
             else:
                 visited[child] = True
                 queue.append(iter(g[child]))
+
+
+def draw_graph(g, outfile = "graph.png"):
+    if not outfile.endswith((".png", ".PNG")):
+        outfile += ".png"
+
+    opts = dict(
+        with_labels = True,
+        width = 0.4,
+        node_color = 'lightblue',
+        node_size = 200,
+        #node_shape = "s",
+        font_size = 8, # for smaller labels
+
+    )
+    plt.figure(figsize=(10,10))
+    nx.draw(g, **opts)
+    #nx.draw(g, pos=nx.spring_layout(g, k=1.5), **opts) beautiful but useless
+    #nx.draw_planar(g, **opts) # looks interesting, suitable for 23
+    plt.savefig(outfile)
+
+
+def contract_edges(g: nx.Graph, protected_vertices: list = None):
+    """Remove vertices that have exaclty one incoming and outgoing edge
+    creating an edges between neightboring vertices (skip connection).
+    A modified copy of the graph is returned. The original graph is not
+    modified.
+
+    Returns
+    a new simpler graph
+    """
+    if isinstance(g, nx.Graph):
+        return _contract_edges_in_graph(g, protected_vertices)
+    raise NotImplementedError("contract_edges() not implemented for {type(g)}")
+
+
+def _contract_edges_in_graph(
+    srcg: nx.Graph,
+    protected_vertices: list = None
+) -> nx.Graph:
+    """
+    TODO: write something here
+    sets length attribute to edges
+
+    Algorithm
+    ----------
+    [p - previous, m - middle, n - next]
+    Inspect triples of vertices (p, m, n) and remove m (middle) iff there
+    exists exactly one edge (p, m) and exactly one edge (m, n)
+    """
+    g = srcg.copy()
+    changed = True
+    while changed:
+        changed = False
+        for m in list(g.nodes()):
+            if not g.has_node(m):  # already deleted
+                continue
+            if protected_vertices and m in protected_vertices:
+                continue
+            nbors = list(g.neighbors(m))
+            if len(nbors) == 2:
+                p, n = nbors
+                lengths = [g.edges[p, m].get('length', 1),
+                           g.edges[m, n].get('length', 1)]
+                g.remove_node(m)
+                g.add_edge(p, n, length=sum(lengths))
+                # BUG: in case of a graph with loops, adding an edge may
+                # override an existing edge.
+                changed = True
+    return g
+
+
+def _contract_edges_in_digraph(srcdg: nx.DiGraph):
+    """Not fully implemented/tested"""
+    print("--- Simplify Graph ---")
+    dg = srcdg.copy()
+    changed = True
+    while changed:
+        print("--- inspecting the graph ---")
+        changed = False
+        for a in list(dg.nodes()):
+            if not dg.has_node(a):
+                continue
+            bs = list(dg.predecessors(a))
+            for b in bs:
+                if len(list(dg.successors(b))) != 1:
+                    continue
+                cs = list(dg.predecessors(b))
+                print(f"{a} <- {bs} <- {cs}")
+                for c in cs:
+                    edge = (c, a)
+                    print(f"..removing vertex {b}; adding edge ({edge})")
+                    dg.add_edge(*edge)
+                    changed = True
+                if changed:
+                    dg.remove_node(b)
+    print(srcdg)
+    print(dg)
+    return dg
