@@ -26,6 +26,10 @@ class Vector(object):
             other = [other] * len(self)
         return self.pairwise(other, lambda a, b: a * b)
 
+    def __round__(self, ndigits=0) -> "Vector":
+        values = [round(v, ndigits) for v in self.values]
+        return self.__class__(values)
+
     def pairwise(
         self,
         other: Union["Vector", Iterable],
