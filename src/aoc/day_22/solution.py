@@ -1,20 +1,26 @@
 #!/usr/bin/env python
 
 # # #
+# I am ashamed of the design complexity of my solution and how long it took.
+# Wrt part 2, my mistake was to assume that counting *all* descendands of
+# a brick that can not be removed (according to part 1) is the way to go.
+# See dag_1 and dag_2 in ./tests.py for examples when this i
 #
-#
+# TODO
+# - can the part about dropping the bricks be implemented w/o numpy?
+#   alternative: a list of levels keyed by z (distance from zearth),
+#   a brick is moved to a lower level.
+# - dry out some code? see other TODOs
 
 import os
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import networkx as nx
 import numpy as np
 
 from aoc import Point, utils
 from aoc.utils import dprint, to_numbers
-
-from .utils import count_descendants
 
 DAY = '22'
 DEBUG = int(os.environ.get('DEBUG', 0))
@@ -122,7 +128,8 @@ def parse_line(line: str) -> Brick:
     return Brick(*ends)
 
 
-# < The ground is at z=0 and is perfectly flat; the lowest z value a brick can have is therefore 1.
+# < The ground is at z=0 and is perfectly flat; the lowest z value a brick
+# < can have is therefore 1.
 # TODO: get rid of level 0? this means recomputing z for all bricks z-=1
 
 def parse(bricks: List[List[Point]]) -> Tuple[np.ndarray, List[Brick]]:
@@ -181,12 +188,12 @@ def fall(grid, bricks):
 
 
 def get_z_spacing(grid, brick) -> int:
-    """Compute the amount of empty space underneath given brick:
+    """Compute the amount of empty space under given brick:
     how far it can move downwards before it collides with another brick
     or Zearth.
 
     Algorithm:
-    Create a shadow of the brick and let it fall step by step.
+    Create a "shadow" of the brick and let it fall step by step.
     At each step we examine the area of the grid within the shadow area.
     If the area is all zeroes, it means it is empty.
     Otherwise, there is another brick.
@@ -205,15 +212,22 @@ def get_z_spacing(grid, brick) -> int:
     return n_steps
 
 
-def get_connections(grid, bricks) -> nx.DiGraph:
+def get_graph_of_connections(grid, bricks) -> nx.DiGraph:
     """
     The algorithm is a combination of parts of fall() and get_z_spacing()
-    TODO: Can it be dried out?
+    TODO: Can it be dried out? what about not dropping any bricks but
+    rather building the graph immediatelly? after all, the graph is what
+    is needed for solving p1 and p2
+
+    Resulting graph is a directed graph where:
+    * vertices represent bricks
+    * edges exist between bricks that are in contact. For example,
+      the edge (1, 2) means brick_2 is lying on brick_1, or, in other words
+      brick_1 supports brick_2
     """
     dprint("--- get Graph of connections between bricks ---")
     g = nx.DiGraph()
     g.add_nodes_from([brick.id for brick in bricks])
-
     for brick in sorted(bricks):
         dprint("Inspecting", brick)
         shadow = brick.shadow().fall()
@@ -247,6 +261,8 @@ def rotate(grid: np.ndarray) -> np.ndarray:
 
     Return
     a copy of the original grid rotated
+
+    This function is used in debugging.
     """
     if ROTATE:
         r1 = np.rot90(grid, 1, (1,2)) # z goes from bottom to top
@@ -256,18 +272,25 @@ def rotate(grid: np.ndarray) -> np.ndarray:
         return grid
 
 
-def can_be_removed(g: nx.DiGraph, vertex: int) -> bool:
+def brick_can_be_removed(g: nx.DiGraph, vertex: int) -> bool:
     """Check if the brick `vertex` can be removed without causing
-    the structure to fall. The structure will fall if the current brick
-    is the only brick supporting it.
+    the structure over the brick to fall.
+    The structure over the brick will fall if the current brick is the only
+    brick supporting it.
 
-    Algorithm
+    Idea:
+    A brick can be removed if it supports another brick (or several bricks)
+    that are supported by yet other bricks as well besides the current one.
+
+    Algorithm:
     Our structure is given as Directed Graph where
     * vertices are bricks and
     * a directed edge exists between every pair of supporting and supported
       bricks.
-    A brick can be removed if it supports a brick (or several bricks) that
-    are supported by other bricks.
+    For given vertex (brick) we inspect its successor vertices and check
+    for each of the successor vertices if they have predecessors other than
+    given vertex. If yes, the structure will not fall. If instead our
+    given brick is the only predecessor, the structure will collapse.
     """
     for u in g.successors(vertex):
         predecessors = set(g.predecessors(u)) - {vertex}
@@ -279,45 +302,103 @@ def can_be_removed(g: nx.DiGraph, vertex: int) -> bool:
     return True
 
 
+def count_chain_destruction(g: nx.DiGraph) -> int:
+    """
+    Idea:
+    Based on computation of in-degree of a node.
+    If a successor of a node is removed, in-degree decrements by 1. When
+    in-degree becomes zero, the node itself is removed.
+    We perform this computation for every node and its descendants.
+
+    Optimization:
+    Having the nodes arranged in topological order reduces the amount of
+    work for computing in_degree, because we need to compute in_degree for
+    descendants of the current node only.
+    """
+
+    sorted_vertices = list(nx.topological_sort(g))
+
+    def count(v):
+        start = sorted_vertices.index(v) + 1
+        indegrees = dict(g.in_degree(sorted_vertices[start:]))
+        queue = [v]
+        cnt = -1  # we exclude the starting node v from counts
+        while queue:
+            n = queue.pop()
+            cnt += 1
+            for s in g.successors(n):
+                indegrees[s] -= 1
+                if indegrees[s] == 0:
+                    queue.append(s)
+        return cnt
+
+    return sum(count(v) for v in g.nodes())
+
+
 def solve(grid: np.ndarray, bricks: List[Brick]) -> nx.DiGraph:
-    """Common part to both parts"""
+    """Common code to both parts:
+
+    Let all bricks fall and build a directed graph that represents
+    the structure.
+    """
     dprint(f"---Initial (rotated) ---\n{rotate(grid)}")
     fall(grid, bricks)
-    g = get_connections(grid, bricks)
+    g = get_graph_of_connections(grid, bricks)
     # validate_graph(g, bricks)
     return g
 
 
 def solve_p1(args) -> int:
-    """Solution to the 1st part of the challenge"""
-    grid, bricks  = args
-    g_connections: nx.DiGraph = solve(grid, bricks)
-    return sum(can_be_removed(g_connections, vertex)
-               for vertex in g_connections.nodes())
+    """Solution to the 1st part of the challenge
+
+    The space is represented as 3D numpy array. Bricks are cells in said
+    array, each brick having its unique number. The lowest level is called
+    Zearth (because the height is represented by z axis).
+
+    The first step is to let all bricks fall. We do it iteratively for
+    every brick, starting with those that are closer to Zearth: when a brick
+    has fallen, the space above it becomes empty and can be occupied by
+    another brick originally farther from Zearth.
+
+    Then, we construct a directed graph that represents the arrangement
+    of the bricks: a directed edge represents a brick that supports another
+    brick.
+
+    To determine whether a brick (a node in graph) can be removed without
+    causing the structure to collapse, we investigate the successor nodes:
+    if all successor nodes have more than one predecessors (that is, lie
+    on another brick besides the current one), the current node can be
+    safely removed.
+    """
+    g: nx.DiGraph = solve(*args)
+    return sum(brick_can_be_removed(g, brick) for brick in g.nodes())
 
 
 def solve_p2(args) -> int:
-    """Solution to the 2nd part of the challenge"""
-    grid, bricks  = args
-    g_connections: nx.DiGraph = solve(grid, bricks)
-    counts: Dict[int, int] = count_descendants(g_connections)
-    total = 0
-    for v in g_connections.nodes():
-        if not can_be_removed(g_connections, v):
-            total += counts[v]
-    return total
+    """Solution to the 2nd part of the challenge
+
+    Start by performing the same steps as for part 1, namely
+    - let all bricks fall
+    - get a directed graph representing the brick structure
+
+    Idea:
+    If we remove a node (a brick) from the graph, the in_degree of immediate
+    descendants decrements by 1. When in_degree of a node becomes 0, this
+    means the brick has lost all its supporting bricks and will collapse.
+    Collapsed brick provokes the same process in its descendant nodes in
+    chain. We repeat the computation, counting all collapsed bricks.
+    """
+    g: nx.DiGraph = solve(*args)
+    return count_chain_destruction(g)
 
 
 tests = [
     (load_input('test.1.txt'), 5, 6+1),
 ]
 
-
 reals = [
-    # 643064 -- too high
-    # 627757 -- too high
-    # 119550 -- too high
-    (load_input(), 468, None)
+    # part2: 643064, 627757, 119550, 119527 -- too high
+    (load_input(), 468, 75358)
 ]
 
 

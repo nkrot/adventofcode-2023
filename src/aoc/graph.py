@@ -1,4 +1,5 @@
-from typing import Callable
+from collections import defaultdict
+from typing import Any, Callable, Dict, List
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -90,9 +91,9 @@ def draw_graph(g, outfile = "graph.png"):
 
     )
     plt.figure(figsize=(10,10))
-    nx.draw(g, **opts)
+    #nx.draw(g, **opts)
     #nx.draw(g, pos=nx.spring_layout(g, k=1.5), **opts) beautiful but useless
-    #nx.draw_planar(g, **opts) # looks interesting, suitable for 23
+    nx.draw_planar(g, **opts) # looks interesting, suitable for 23
     plt.savefig(outfile)
 
 
@@ -173,3 +174,56 @@ def _contract_edges_in_digraph(srcdg: nx.DiGraph):
     print(srcdg)
     print(dg)
     return dg
+
+
+def get_disconnected_subgraphs(g: nx.DiGraph) -> List[nx.DiGraph]:
+    """If given directed graph contains several graphs not connected by
+    at least one edge (edge direction does not matter), return subgraphs
+    as a list.
+
+    TODO:
+    1) does NetworksX has anything suitable for this purpose?
+    2) Not tested. This functionality was initially designed for day23p2
+       but turned out to be unused for the final solution.
+    3) Do not do anything if there is only one graph. Instead, return it
+       in a list of one element.
+    4) Return a generator instead of list? because many functions in networkx
+       return a generator.
+    5) For undirected graph, the same can be done using nx.connected_components()
+    """
+    subgraphs = []
+    for idx, vertices in enumerate(nx.weakly_connected_components(g)):
+        subg = type(g)()
+        subg.add_nodes_from(vertices)
+        for v in vertices:
+            subg.add_edges_from(g.edges(v))
+        subgraphs.append(subg)
+        # draw_graph(subg, f"subgraph.dg.{idx}.png")
+    return subgraphs
+
+
+def count_descendants(g: nx.DiGraph) -> Dict[Any, int]:
+    """Count the number of all unique descendants of all vertices.
+    Descendants are not only direct successors but also successors of
+    successors till the leaf vertices.
+
+    seems that the function works for disconnected graphs (a graph with
+    disconnected subgraphs)
+    """
+    assert isinstance(g, nx.DiGraph), f"Wrong type: {type(g)}"
+    nodes = defaultdict(set)
+    ordered_vertices = list(nx.topological_sort(g))
+    for u in reversed(ordered_vertices):
+        # method 1
+        # descendants = list(nx.descendants(g, u))
+        # nodes[u].update(descendants)
+        # method 2
+        successors = list(g.successors(u))
+        nodes[u].update(successors)
+        for s in successors:
+            nodes[u].update(nodes[s])
+    nodes = {
+        u: len(vs)
+        for u, vs in nodes.items()
+    }
+    return nodes
