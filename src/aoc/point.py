@@ -2,6 +2,10 @@ from typing import List, Union
 
 from .vector import Vector
 
+__all__ = [
+    'Point',
+    'is_straight_line'
+]
 
 class Point(Vector):
     """for purposes of clearer naming"""
@@ -76,60 +80,17 @@ class Point(Vector):
         return self.x < other.x or self.x == other.x and self.y < other.y
 
 
-class DirectedPoint(Point):
-    """A point that has an idea of direction.
-    If you try to move it by a number of steps, it moves in known
-    direction.
+def is_straight_line(points: List[Point]) -> bool:
+    """Check if given 2D points constitute a single straight line.
+    Points must be contiguous.
+    If there are less than 2 points given, return false.
 
-    Assumptions:
-    * coodinate is (x, y)
-    * the origin is located in the top left corner
-    * x axis goes from left to right
-    * y axis goes from top to bottom
+    TODO:
+    - allow list of tuples instead of Points and make points on the fly?
+      or use Direction class :)
     """
-
-    UP    = ( 0, -1)
-    RIGHT = ( 1,  0)
-    DOWN  = ( 0,  1)
-    LEFT  = (-1,  0)
-
-    def __init__(self, position, direction=DOWN):
-        super().__init__(position)
-        self.direction = Vector(direction)
-
-    def __repr__(self):
-        return "<{}: position={}, direction={}>".format(
-            self.__class__.__name__,
-            self.values,
-            self.direction
-        )
-
-    def turn_cw(self):
-        """Turn one step (90 deg) clockwise"""
-        direction = self.direction + (1, 1)
-        sign = direction[0] - direction[1]
-        self.direction = direction % 2 * sign
-
-    def turn_ccw(self):
-        "Turn one step (90 deg) counterclockwise"
-        direction = self.direction + (-1, -1)
-        sign = direction[1] - direction[0]
-        self.direction = direction % 2 * sign
-
-
-def demo_directed_point():
-    """
-    TODO: make testcases from it
-    """
-    pt = DirectedPoint((0, 8), DirectedPoint.RIGHT)
-    print(repr(pt))
-
-    print("turning clockwise")
-    for _ in range(5):
-        pt.turn_cw()
-        print(repr(pt))
-
-    print("turn counterclockwise")
-    for _ in range(5):
-        pt.turn_ccw()
-        print(repr(pt))
+    if len(points) < 2:
+        return False
+    directions = [b - a for a, b in zip(points, points[1:])]
+    res = len(set(directions)) == 1
+    return res
