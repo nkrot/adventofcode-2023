@@ -11,7 +11,7 @@ import sys
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Union
 
-from aoc import utils, Ray, Point
+from aoc import Point, Ray, utils, Colorizer
 from aoc.utils import dprint, to_numbers
 
 DAY = '24'
@@ -36,12 +36,25 @@ def load_input(fname: str = None):
     return utils.load_input(fname, line_parser=parse)
 
 
-def parse(line: str) -> Ray:
+COLORS = Colorizer()
+
+def parse(line: str) -> 'Hailstone':
     """Parse a line of input into suitable data structure"""
     numbers = to_numbers(re.findall(r'-?\d+', line))
-    ray = Ray(numbers[:3], numbers[3:])
-    dprint(ray)
-    return ray
+    hailstone = Hailstone(numbers[:3], numbers[3:], color=next(COLORS))
+    dprint(hailstone)
+    return hailstone
+
+
+class Hailstone(Ray):
+    """For clearer naming + color attribute
+
+    TODO: move color to Line? looks useful there as well
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.color = kwargs.pop('color', 'black')
+        super().__init__(*args, **kwargs)
 
 
 @dataclass
@@ -59,18 +72,18 @@ class Area:
 
 def solve_p1(args) -> int:
     """Solution to the 1st part of the challenge"""
-    rays, area = args
+    hailstones, area = args
     cnt = 0
-    for i in range(len(rays)):
-        for j in range(i+1, len(rays)):
-            p = rays[i] & rays[j]
-            dprint(f"Intersect at: {p}")
+    for i in range(len(hailstones)):
+        for j in range(i+1, len(hailstones)):
+            p = hailstones[i] & hailstones[j]
+            dprint(f"Collide at: {p}")
             if p and p in area:
                 cnt += 1
     return cnt
 
 
-def solve_p2(lines: List[str]) -> int:
+def solve_p2(hailstones: List[Hailstone]) -> int:
     """Solution to the 2nd part of the challenge"""
     return 0
 
