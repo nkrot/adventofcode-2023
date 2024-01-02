@@ -11,6 +11,8 @@ import sys
 from dataclasses import dataclass
 from typing import Dict, List, Tuple, Union
 
+import matplotlib.pyplot as plt
+
 from aoc import Point, Ray, utils, Colorizer
 from aoc.utils import dprint, to_numbers
 
@@ -85,16 +87,106 @@ def solve_p1(args) -> int:
 
 def solve_p2(hailstones: List[Hailstone]) -> int:
     """Solution to the 2nd part of the challenge"""
+    print(hailstones)
+    explore_collisions(hailstones)
+    explore_collisions_in_each_plain(hailstones)
     return 0
 
 
+def explore_collisions(hailstones):
+    for i, h1 in enumerate(hailstones):
+        for j in range(i+1, len(hailstones)):
+            h2 = hailstones[j]
+            p = h1 & h2
+            print((i, j), p, h1, h2)
+        print()
+
+
+def explore_collisions_in_each_plain(hailstones):
+    """explore whether the trajectories intersect in each of the planes
+    X-Y, X-Z, Y-Z
+    """
+    axes = {0: 'x', 1: 'y', 2: 'z'}
+    for d1, d2 in [(0,1), (1,2), (0,2)]:
+        plane = (axes[d1], axes[d2])
+        print(f"--- Collisions in the plane {(d1, d2)} ---")
+        # make all hailstones 2D
+        hailstones_2d = [
+            Hailstone((h.s[d1], h.s[d2]), (h.d[d1], h.d[d2]), color=h.color)
+            for h in hailstones
+        ]
+        # compute and print intersection points
+        explore_collisions(hailstones_2d)
+
+        # draw trajectories of flying hailstones (as arrows)
+        outfile = "test.1.{}.png".format("-".join(map(str, plane)))
+        draw_trajectories(hailstones_2d, plane, outfile)
+
+
+def draw_trajectories(
+    hailstones: List[Hailstone],
+    labels: List[str],
+    filename: str = None
+):
+
+    # used to compute how long an error will be and corresponds to the
+    # number of nanoseconds the hailstone flies.
+    n_steps = 16  # set manually
+    # min and max values long X and Y axes
+    xlims = (-15, 35)
+    ylims = (-23, 35) # set manually
+
+    arrow_props = dict(
+        linewidth = 0.5,
+        length_includes_head = True,
+        width = 0.1,   # tail width
+        head_width = 1,
+        color = 'black'
+    )
+
+    fig = plt.figure()
+
+    # https://matplotlib.org/stable/gallery/lines_bars_and_markers/linestyles.html
+    for hail in hailstones:
+        # variant 1
+        # start, end = hail.s, hail.s + hail.d
+        # line = plt.axline(start, end, color=hail.color, linewidth=0.5)
+        # plt.annotate('ugly', xy=end, xytext=start, arrowprops={})
+
+        # variant 2
+        # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.arrow.html
+        arrow_props['color'] = hail.color
+        line = plt.arrow(*hail.s, *(hail.d * n_steps), **arrow_props)
+
+        fig.add_artist(line)
+
+    if len(labels) == 2:
+        plt.xlabel(labels[0])
+        plt.ylabel(labels[1])
+
+    if xlims: plt.xlim(xlims)
+    if ylims: plt.ylim(ylims)
+    plt.grid(True, linestyle="dotted")
+
+    if filename:
+        print(f"Saving plot to the file: {filename}")
+        plt.savefig(filename)
+    else:
+        plt.show()
+
+    plt.close(fig)
+
+
 tests = [
-    ((load_input('test.1.txt'), Area(7, 27)), 2, None),
+    #((load_input('test.1.txt'), Area(7, 27)), 2, None),
+    (load_input('test.1.txt'), None, 24+13+10),
 ]
 
 
 reals = [
     ((load_input(), Area(2e14, 4e14)), 17867, None)
+    # (load_input(), None, -1)
+
 ]
 
 

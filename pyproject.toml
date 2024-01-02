@@ -15,6 +15,7 @@ requires-python = ">=3.7"
 dependencies = [
     "click",
     "numpy",
+    "scipy",
     "networkx",
     "pytest",
     "pytest-datadir"
