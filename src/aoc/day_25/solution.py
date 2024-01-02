@@ -1,9 +1,11 @@
-#!/usr/bin/env python
+"""Solution for Day 25 (AoC 2023)
 
-# # #
-#
-# https://www.tutorialspoint.com/graph_theory/graph_theory_connectivity.htm
-# https://networkx.org/documentation/stable/reference/algorithms/connectivity.html#module-networkx.algorithms.connectivity.kcutsets
+TODO
+
+https://www.tutorialspoint.com/graph_theory/graph_theory_connectivity.htm
+https://networkx.org/documentation/stable/reference/algorithms/connectivity.html#module-networkx.algorithms.connectivity.kcutsets
+
+"""
 
 import os
 import re

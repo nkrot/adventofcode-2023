@@ -60,6 +60,13 @@ class PartsOption(click.Option):
         return super().process_value(ctx, new_values)
 
 
+def opt_explain(func):
+    func = click.option(
+        '-e', '--explain', 'show_explanation', is_flag=True,
+        help=("show documentation for given day(s) and exit"))(func)
+    return func
+
+
 def list_available_days() -> Tuple[str]:
     """
     Discover days for which solutions are available and return a list of
@@ -121,7 +128,8 @@ def main():
 @main.command()
 @click.argument('days', metavar="[DAYS] [FILES]", cls=DaysArgument)
 @click.option('-p', '--part', 'parts', cls=PartsOption)
-def solve(days: Tuple[str], parts: Tuple[str]):
+@opt_explain
+def solve(days: Tuple[str], parts: Tuple[str], show_explanation: bool):
     """Run solution(s) on the real inputs for given days.
 
     DAYS, one or many, are given as numbers from 1 to 25. If none is
@@ -135,6 +143,10 @@ def solve(days: Tuple[str], parts: Tuple[str]):
     files = [d for d in days if not re.match(r'\d+$', d)]
     days = [d for d in days if re.match(r'\d+$', d)]
     #print(f"Solving real... days {days} parts {parts} for files {files}")
+
+    if show_explanation:
+        show_explanations(days)
+        return
 
     for d in days:
         solution = load_solution_for_day(d)
@@ -162,13 +174,19 @@ def solve(days: Tuple[str], parts: Tuple[str]):
 @main.command()
 @click.argument('days', cls=DaysArgument)
 @click.option('-p', '--part', 'parts', cls=PartsOption)
-def test(days: Tuple[str], parts: Tuple[str]):
+@opt_explain
+def test(days: Tuple[str], parts: Tuple[str], show_explanation: bool):
     """Run solution(s) on the test inputs.
 
     Test inputs are those that are given in the task description with
     answers.
     """
     # print(f"Solving tests... days {days} parts {parts}")
+
+    if show_explanation:
+        show_explanations(days)
+        return
+
     for d in days:
         solution = load_solution_for_day(d)
         if solution:
@@ -187,6 +205,18 @@ def list_days():
     No guarantee they are solved :)
     """
     print(list_available_days())
+
+
+def show_explanations(days: Tuple[str]):
+    """Print docstrings from solutions of the given day(s)"""
+    for d in days:
+        print(f"--- Explanation of day {d} solution ---")
+        solution = load_solution_for_day(d)
+        if solution.__doc__:
+            print(solution.__doc__)
+        else:
+            print("Not provided")
+        print()
 
 
 if __name__ == "__main__":
