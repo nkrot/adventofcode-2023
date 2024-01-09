@@ -51,21 +51,21 @@ def measure_field(
     """
     dprint("measure_field")
     y, x = 0, 0
-    max_y, max_x = 0, 0
-    min_y, min_x = 10000, 10000  # hopefully large enough for the task
+    max_y, max_x = None, None
+    min_y, min_x = None, None
     for inst in instructions:
         if inst.direction == 'R':
             y += inst.length
-            max_y = max(max_y, y)
+            max_y = y if max_y is None else max(max_y, y)
         elif inst.direction == 'L':
             y -= inst.length
-            min_y = min(min_y, y)
+            min_y = y if min_y is None else min(min_y, y)
         elif inst.direction == 'D':
             x += inst.length
-            max_x = max(max_x, x)
+            max_x = x if max_x is None else max(max_x, x)
         elif inst.direction == 'U':
             x -= inst.length
-            min_x = min(min_x, x)
+            min_x = x if min_x is None else min(min_x, x)
     height = max_x - min_x + 1
     width = max_y - min_y + 1
     dprint("x (height)", (min_x, max_x), height)
