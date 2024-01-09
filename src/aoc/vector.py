@@ -33,8 +33,10 @@ class Vector(object):
     def pairwise(
         self,
         other: Union["Vector", Iterable],
-        func: Callable   # functools.reduce()
+        func: Callable  # to be used with functools.reduce()
     ) -> "Vector":
+        if not isinstance(other, (type(self), list, tuple)):
+            return NotImplemented
         assert len(self) == len(other), (
             f"Length mismatch: {len(self)} vs. {len(other)}"
         )
