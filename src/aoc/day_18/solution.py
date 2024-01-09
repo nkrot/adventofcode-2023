@@ -2,7 +2,8 @@
 
 # # #
 #
-#
+# TODO
+# 1) write docstrings for --eplain
 
 import os
 from typing import Dict, List, Tuple
@@ -43,10 +44,36 @@ def solve_p1(instructions: List[DiggingInstruction]) -> int:
 
 
 def solve_p2(instructions: List[DiggingInstruction]) -> int:
-    """Solution to the 2nd part of the challenge"""
+    """Solution to the 2nd part of the challenge
+
+    Using shoelace algorithm
+    https://www.101computing.net/the-shoelace-algorithm/
+    """
     instructions = convert_digging_instructions(instructions)
-    print(measure_field(instructions))
-    return 0
+    size, start = measure_field(instructions)
+    dprint(f"Field size = {size}, start at {start}")
+
+    corners = [start]
+    for idx, inst in enumerate(instructions):
+        dprint(idx, inst)
+        corners.append(corners[-1] + inst)
+        dprint(f"..new corner: {corners[-1]}")
+    # if corners[0] == corners[-1]:
+    #     print(f"Loop! Start and end point match: {corners[-1]}")
+
+    # for shoelace algorithm, arrange the corners anticlockwise
+    corners = list(reversed(corners))
+
+    area = sum([
+        a.x * b.y - b.x * a.y
+        for a, b in zip(corners[:-1], corners[1:])
+    ]) / 2
+
+    # add area of the contour trench itself
+    area += sum([inst.length for inst in instructions]) / 2
+    area += 1  # area of the starting point
+
+    return int(area)
 
 
 tests = [
@@ -55,7 +82,7 @@ tests = [
 
 
 reals = [
-    (load_input(), 47139, None)
+    (load_input(), 47139, 173152345887206)
 ]
 
 
