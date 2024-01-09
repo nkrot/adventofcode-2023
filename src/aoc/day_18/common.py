@@ -29,6 +29,7 @@ class DiggingInstruction:
     }
 
     def __iter__(self):
+        # TODO: use generator
         steps = [ self.DXY[self.direction] ] * self.length
         return iter(steps)
 
@@ -38,33 +39,43 @@ class DiggingInstruction:
         fields[1] = int(fields[1])
         return cls(*fields)
 
+    def __radd__(self, other: Point):
+        return self.__add__(other)
+
+    def __add__(self, other: Point) -> Point:
+        """Return another Point that is offset from the given point according
+        to the current digging instruction.
+        """
+        assert isinstance(other, Point)
+        offset = Point(self.DXY[self.direction]) * self.length
+        return other + offset
 
 def measure_field(
     instructions: List['DiggingInstruction']
 ) -> Tuple[Tuple[int, int], Point]:
     """Inspect digging instructions, estimate the size (height and width)
-    of tghe lagoon.
+    of the lagoon.
 
     Additionally, compute starting point whether the digging must start
     such that it is within the field.
     """
     dprint("measure_field")
     y, x = 0, 0
-    max_y, max_x = 0, 0
-    min_y, min_x = 10000, 10000  # hopefully large enough for the task
+    max_y, max_x = None, None
+    min_y, min_x = None, None
     for inst in instructions:
         if inst.direction == 'R':
             y += inst.length
-            max_y = max(max_y, y)
+            max_y = y if max_y is None else max(max_y, y)
         elif inst.direction == 'L':
             y -= inst.length
-            min_y = min(min_y, y)
+            min_y = y if min_y is None else min(min_y, y)
         elif inst.direction == 'D':
             x += inst.length
-            max_x = max(max_x, x)
+            max_x = x if max_x is None else max(max_x, x)
         elif inst.direction == 'U':
             x -= inst.length
-            min_x = min(min_x, x)
+            min_x = x if min_x is None else min(min_x, x)
     height = max_x - min_x + 1
     width = max_y - min_y + 1
     dprint("x (height)", (min_x, max_x), height)

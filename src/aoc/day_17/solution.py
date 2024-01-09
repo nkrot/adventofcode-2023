@@ -61,7 +61,7 @@ the first part but uses a different class of state (`UltraCrucible`)
 with a different moving behaviour.
 
 Currently, the running time for part 2 is around 20 minutes. Additionally,
-RAM consumption can go up to 3.9G.
+RAM consumption can go up to 4.7G.
 
 There is a room for improvement. For example,
 * as soon as Ultra Crucible turns, it can advance some blocks due to the
@@ -388,7 +388,7 @@ def solve_p2(city_map: Matrix) -> int:
     Solution to the 2nd part of the challenge.
 
     pypy (on gpu machine) runtime: 40min; RAM: 3.9G
-    pypy (on localhost) runtime: 20 min, RAM: unk
+    pypy (on localhost) runtime: 20 min, RAM: 4.6G
     """
     dprint(f"--- City Map (Heat Loss Map) ---:\n{city_map}\n-----")
     start = Point(0, 0)
