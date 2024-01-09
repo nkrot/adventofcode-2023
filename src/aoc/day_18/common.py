@@ -39,6 +39,16 @@ class DiggingInstruction:
         fields[1] = int(fields[1])
         return cls(*fields)
 
+    def __radd__(self, other: Point):
+        return self.__add__(other)
+
+    def __add__(self, other: Point) -> Point:
+        """Return another Point that is offset from the given point according
+        to the current digging instruction.
+        """
+        assert isinstance(other, Point)
+        offset = Point(self.DXY[self.direction]) * self.length
+        return other + offset
 
 def measure_field(
     instructions: List['DiggingInstruction']
