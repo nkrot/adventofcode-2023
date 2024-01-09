@@ -29,6 +29,7 @@ class DiggingInstruction:
     }
 
     def __iter__(self):
+        # TODO: use generator
         steps = [ self.DXY[self.direction] ] * self.length
         return iter(steps)
 
@@ -43,7 +44,7 @@ def measure_field(
     instructions: List['DiggingInstruction']
 ) -> Tuple[Tuple[int, int], Point]:
     """Inspect digging instructions, estimate the size (height and width)
-    of tghe lagoon.
+    of the lagoon.
 
     Additionally, compute starting point whether the digging must start
     such that it is within the field.
