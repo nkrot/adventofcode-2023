@@ -1,8 +1,14 @@
-#!/usr/bin/env python
+"""
+Part 1
+------
 
-# # #
-#
-#
+TODO: write something here
+
+Part 2
+------
+
+TODO: write something here
+"""
 
 import os
 import re
