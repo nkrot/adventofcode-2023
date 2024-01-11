@@ -221,3 +221,8 @@ def is_odd(obj: Union[int, List[int], Tuple[int]]) -> bool:
     if isinstance(obj, (list, tuple)):
         return all(map(is_odd, obj))
     return obj % 2 != 0
+
+
+class AOCException(Exception):
+    """Base class for AoC exceptions"""
+    pass

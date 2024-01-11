@@ -5,3 +5,4 @@ from .point import *
 from .lines import Line, Ray
 from .colors import Colorizer
 #from .graph import *
+from .utils import AOCException
